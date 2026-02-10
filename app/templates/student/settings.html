@@ -1,0 +1,547 @@
+{% extends "/student/student_base.html" %}
+{% block title %}- Settings {% endblock %}
+{% block content %}
+    <style>
+        .settings-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .settings-tabs {
+            display: flex;
+            gap: 5px;
+            background: rgba(20, 20, 30, 0.5);
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-light);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+            min-width: 120px;
+        }
+
+        .tab-btn.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .settings-content {
+            display: none;
+        }
+
+        .settings-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .settings-card {
+            background: rgba(20, 20, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+
+        .settings-card h3 {
+            margin-bottom: 20px;
+            color: var(--text);
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.95rem;
+            cursor: pointer;
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(120, 119, 198, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .account-balance {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .balance-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .balance-amount {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .balance-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .form-help {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .alert-success {
+            background: rgba(34, 197, 94, 0.2);
+            color: rgb(34, 197, 94);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            color: rgb(239, 68, 68);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+            <div class="page-title">
+                <h1>Account Settings</h1>
+                <p>Manage your profile, preferences, and account security</p>
+            </div>
+            <div class="header-actions">
+                <div class="notification-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="notification-badge">{{ notifications_count }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="settings-container">
+            <!-- Account Balance -->
+            <div class="account-balance">
+                <div class="balance-label">Current Account Balance</div>
+                <div class="balance-amount">Ksh {{ "%.2f"|format(profile.profile_account_balance or 0) }}</div>
+                <div class="balance-actions">
+                    <a href="/student/payments" class="btn" style="background: rgba(255,255,255,0.2); color: white;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M19.4 15C19.2669 15.3044 19.1343 15.6087 19.0001 15.913C18.509 16.8954 17.8381 17.7487 17.0715 18.5153C15.6094 19.9774 13.695 20.761 11.7885 20.925C10.6824 21.0212 9.56619 20.8859 8.51563 20.5156C7.46506 20.1453 6.50492 19.5487 5.69697 18.7578C4.10469 17.1655 3.23828 15.0656 3.075 12.7885C2.91172 10.5114 3.52266 8.39063 4.875 6.75C5.46094 6.03281 6.15469 5.41406 6.9375 4.92188" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 4.5V12L15.375 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Add Funds
+                    </a>
+                    <a href="/student/payments/payment-history" class="btn" style="background: rgba(255,255,255,0.2); color: white;">
+                        View Payment History
+                    </a>
+                </div>
+            </div>
+
+            <!-- Settings Tabs -->
+            <div class="settings-tabs">
+                <button class="tab-btn active" onclick="showTab('profile')">Profile</button>
+                <button class="tab-btn" onclick="showTab('security')">Security</button>
+            </div>
+
+            <!-- Alerts -->
+            <div id="successAlert" class="alert alert-success"></div>
+            <div id="errorAlert" class="alert alert-error"></div>
+
+            <!-- Profile Tab -->
+            <div id="profile" class="settings-content active">
+                <div class="settings-card">
+                    <h3>Personal Information</h3>
+                    <form id="profileForm" onsubmit="updateProfile(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="firstName">First Name *</label>
+                                <input type="text" class="form-input" id="firstName" name="firstName" 
+                                       value="{{ user.first_name }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="lastName">Last Name *</label>
+                                <input type="text" class="form-input" id="lastName" name="lastName" 
+                                       value="{{ user.last_name }}" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="email">Email Address *</label>
+                                <input type="email" class="form-input" id="email" name="email" 
+                                       value="{{ user.email }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="phone">Phone Number</label>
+                                <input type="tel" class="form-input" id="phone" name="phone" 
+                                       value="{{ user.phone or '' }}">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="gender">Gender *</label>
+                                <select class="form-select" id="gender" name="gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="Male" {% if user.gender == 'Male' %}selected{% endif %}>Male</option>
+                                    <option value="Female" {% if user.gender == 'Female' %}selected{% endif %}>Female</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="studentId">Student ID *</label>
+                                <input type="text" class="form-input" id="studentId" name="studentId" 
+                                       value="{{ profile.profile_student_id or '' }}" required>
+                                <div class="form-help">Your university student identification number</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="emergencyContact">Emergency Contact Phone *</label>
+                            <input type="tel" class="form-input" id="emergencyContact" name="emergencyContact" 
+                                   value="{{ profile.profile_emergency_contact or '' }}" required>
+                            <div class="form-help">Phone number of your emergency contact person</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="profileSubmit">
+                            Update Profile
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Security Tab -->
+            <div id="security" class="settings-content">
+                <div class="settings-card">
+                    <h3>Change Password</h3>
+                    <form id="passwordForm" onsubmit="changePassword(event)">
+                        <div class="form-group">
+                            <label class="form-label" for="currentPassword">Current Password *</label>
+                            <input type="password" class="form-input" id="currentPassword" name="currentPassword" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label" for="newPassword">New Password *</label>
+                                <input type="password" class="form-input" id="newPassword" name="newPassword" required>
+                                <div class="form-help">Minimum 6 characters</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="confirmPassword">Confirm New Password *</label>
+                                <input type="password" class="form-input" id="confirmPassword" name="confirmPassword" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="passwordSubmit">
+                            Change Password
+                        </button>
+                    </form>
+                </div>
+
+                <div class="settings-card">
+                    <h3>Account Actions</h3>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        <button class="btn btn-danger" onclick="exportData()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M7 10L12 15L17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Export My Data
+                        </button>
+                        <button class="btn btn-danger" onclick="deleteAccount()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 21 17 21H7C6.46957 21 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Delete Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        });
+
+        // Tab navigation
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.settings-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Show alert message
+        function showAlert(message, type) {
+            const alertDiv = type === 'success' ? document.getElementById('successAlert') : document.getElementById('errorAlert');
+            const otherAlert = type === 'success' ? document.getElementById('errorAlert') : document.getElementById('successAlert');
+            
+            alertDiv.textContent = message;
+            alertDiv.style.display = 'block';
+            otherAlert.style.display = 'none';
+            
+            // Auto-hide success alerts after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Update profile
+        async function updateProfile(event) {
+            event.preventDefault();
+            const form = event.target;
+            const submitBtn = document.getElementById('profileSubmit');
+            
+            // Show loading state
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Updating...';
+            
+            try {
+                const formData = new FormData(form);
+                
+                const response = await fetch('/student/update_profile', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('An error occurred while updating your profile. Please try again.', 'error');
+            } finally {
+                // Reset loading state
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Update Profile';
+            }
+        }
+
+        // Change password
+        async function changePassword(event) {
+            event.preventDefault();
+            const form = event.target;
+            const submitBtn = document.getElementById('passwordSubmit');
+            
+            // Show loading state
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Changing...';
+            
+            try {
+                const formData = new FormData(form);
+                
+                const response = await fetch('/student/change_password', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showAlert(data.message, 'success');
+                    form.reset();
+                } else {
+                    showAlert(data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('An error occurred while changing your password. Please try again.', 'error');
+            } finally {
+                // Reset loading state
+                submitBtn.classList.remove('loading');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Change Password';
+            }
+        }
+
+        // Export data
+        function exportData() {
+            if (confirm('This will export all your personal data in a downloadable format. Continue?')) {
+                // Implement data export functionality
+                alert('Data export feature coming soon!');
+            }
+        }
+
+        // Delete account
+        function deleteAccount() {
+            if (confirm('WARNING: This will permanently delete your account and all associated data. This action cannot be undone. Are you sure?')) {
+                if (confirm('Are you absolutely sure? This will remove all your bookings, payments, and personal information.')) {
+                    // Implement account deletion functionality
+                    alert('Account deletion feature coming soon!');
+                }
+            }
+        }
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileToggle = document.getElementById('mobileMenuToggle');
+            
+            if (window.innerWidth <= 1024 && 
+                !sidebar.contains(event.target) && 
+                !mobileToggle.contains(event.target) &&
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        // Initialize page - check if required fields are filled
+        document.addEventListener('DOMContentLoaded', function() {
+            const studentId = document.getElementById('studentId').value;
+            const emergencyContact = document.getElementById('emergencyContact').value;
+            
+            if (!studentId || !emergencyContact) {
+                showAlert('Please complete your profile by filling in all required fields.', 'error');
+            }
+        });
+    </script>
+{% endblock %}

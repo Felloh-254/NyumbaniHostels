@@ -1,0 +1,1150 @@
+{% extends "/student/student_base.html" %}
+{% block title %}- Make Payment {% endblock %}
+{% block content %}
+    <style>    
+        /* Content Sections */
+        .content-section {
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(120, 119, 198, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Payment Layout */
+        .payment-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .payment-card {
+            background: rgba(20, 20, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* Payment Methods */
+        .payment-methods {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .payment-method {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-method:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .payment-method.selected {
+            border-color: var(--primary);
+            background: rgba(120, 119, 198, 0.1);
+        }
+
+        .method-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .method-info {
+            flex: 1;
+        }
+
+        .method-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .method-description {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .method-radio {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .payment-method.selected .method-radio::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .form-control:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .form-hint {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+
+        .form-error {
+            font-size: 0.8rem;
+            color: #ef4444;
+            margin-top: 5px;
+        }
+
+        /* File Upload */
+        .file-upload {
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .file-upload.dragover {
+            border-color: var(--primary);
+            background: rgba(120, 119, 198, 0.1);
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--text-light);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-info {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .file-preview {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-preview img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .file-details {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .file-size {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .remove-file {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* M-Pesa Instructions */
+        .mpesa-instructions {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .instruction-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .step-number {
+            width: 25px;
+            height: 25px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .step-description {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        /* Booking Summary */
+        .booking-summary {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            color: var(--text-light);
+        }
+
+        .summary-value {
+            font-weight: 600;
+        }
+
+        .summary-total {
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        /* Payment Processing */
+        .payment-processing {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .processing-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success State */
+        .payment-success {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(34, 197, 94, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            color: #10b981;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .payment-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .payment-method {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            
+            .method-info {
+                text-align: center;
+            }
+            
+            .search-box input {
+                width: 180px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .payment-card {
+                padding: 20px;
+            }
+            
+            .file-upload {
+                padding: 20px;
+            }
+            
+            .instruction-step {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+        }
+    </style>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+            <div class="page-title">
+                <h1>Make Payment</h1>
+                <p>Complete your hostel booking payment</p>
+            </div>
+            <div class="header-actions">
+                <div class="search-box">
+                    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="notification-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="notification-badge">{{ notifications_count }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="section-header">
+            <a href="{% if booking %}/student/bookings/{{ booking.booking_id }}{% else %}/student/bookings{% endif %}" class="btn btn-outline">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Back to {% if booking %}Booking{% else %}Bookings{% endif %}
+            </a>
+        </div>
+
+        <!-- Payment Layout -->
+        <div class="payment-layout">
+            <!-- Left Column - Payment Methods -->
+            <div>
+                <div class="payment-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Payment Method</h2>
+                    </div>
+
+                    <div class="payment-methods">
+                        <!-- M-Pesa Option -->
+                        <div class="payment-method selected" onclick="selectPaymentMethod('mpesa')">
+                            <div class="method-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" fill="#00A650"/>
+                                    <path d="M12 6C8.69 6 6 8.69 6 12C6 15.31 8.69 18 12 18C15.31 18 18 15.31 18 12C18 8.69 15.31 6 12 6Z" fill="white"/>
+                                    <path d="M12 8C9.79 8 8 9.79 8 12C8 14.21 9.79 16 12 16C14.21 16 16 14.21 16 12C16 9.79 14.21 8 12 8Z" fill="#00A650"/>
+                                </svg>
+                            </div>
+                            <div class="method-info">
+                                <div class="method-name">M-Pesa</div>
+                                <div class="method-description">Instant payment via M-Pesa mobile money</div>
+                            </div>
+                            <div class="method-radio"></div>
+                        </div>
+
+                        <!-- Manual Receipt Upload -->
+                        <div class="payment-method" onclick="selectPaymentMethod('manual')">
+                            <div class="method-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <div class="method-info">
+                                <div class="method-name">Upload Receipt</div>
+                                <div class="method-description">Upload proof of bank transfer or payment</div>
+                            </div>
+                            <div class="method-radio"></div>
+                        </div>
+                    </div>
+
+                    <!-- M-Pesa Payment Form -->
+                    <div id="mpesaForm" class="payment-form">
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phoneNumber" placeholder="07XX XXX XXX" value="{{ user.user_phone_number or '' }}">
+                            <div class="form-hint">Enter your M-Pesa registered phone number</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Amount</label>
+                            <input type="text" class="form-control" id="amount" value="Ksh {{ booking.room_price_per_sem if booking else '0' }}" disabled>
+                        </div>
+
+                        <button class="btn btn-success" style="width: 100%;" onclick="processMpesaPayment()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M19.4 15C19.2669 15.3044 19.1343 15.6087 19.0001 15.913C18.509 16.8954 17.8381 17.7487 17.0715 18.5153C15.6094 19.9774 13.695 20.761 11.7885 20.925C10.6824 21.0212 9.56619 20.8859 8.51563 20.5156C7.46506 20.1453 6.50492 19.5487 5.69697 18.7578C4.10469 17.1655 3.23828 15.0656 3.075 12.7885C2.91172 10.5114 3.52266 8.39063 4.875 6.75C5.46094 6.03281 6.15469 5.41406 6.9375 4.92188" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 4.5V12L15.375 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Pay with M-Pesa
+                        </button>
+
+                        <!-- M-Pesa Instructions -->
+                        <div class="mpesa-instructions">
+                            <h4 style="margin-bottom: 15px;">How to Pay with M-Pesa:</h4>
+                            <div class="instruction-step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <div class="step-title">Go to M-Pesa Menu</div>
+                                    <div class="step-description">Select Lipa Na M-Pesa then Pay Bill</div>
+                                </div>
+                            </div>
+                            <div class="instruction-step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <div class="step-title">Enter Business Number</div>
+                                    <div class="step-description">Enter business number: <strong>123456</strong></div>
+                                </div>
+                            </div>
+                            <div class="instruction-step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <div class="step-title">Enter Account Number</div>
+                                    <div class="step-description">Use your student ID: <strong>{{ user.profile_student_id or 'Your Student ID' }}</strong></div>
+                                </div>
+                            </div>
+                            <div class="instruction-step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <div class="step-title">Enter Amount</div>
+                                    <div class="step-description">Enter amount: <strong>Ksh {{ booking.room_price_per_sem if booking else '0' }}</strong></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manual Upload Form -->
+                    <div id="manualForm" class="payment-form" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label">Payment Method</label>
+                            <select class="form-control" id="manualPaymentMethod">
+                                <option value="">Select payment method</option>
+                                <option value="Bank Transfer">Bank Transfer</option>
+                                <option value="Cash Deposit">Cash Deposit</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Amount Paid</label>
+                            <input type="number" class="form-control" id="manualAmount" placeholder="Enter amount paid" value="{{ booking.room_price_per_sem if booking else '' }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Transaction Reference</label>
+                            <input type="text" class="form-control" id="transactionReference" placeholder="Enter transaction reference number">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Payment Date</label>
+                            <input type="date" class="form-control" id="paymentDate">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Upload Receipt</label>
+                            <div class="file-upload" id="receiptUpload" onclick="document.getElementById('receiptFile').click()">
+                                <div class="upload-icon">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <div>Click to upload receipt</div>
+                                <div class="form-hint">Supported formats: JPG, PNG, PDF (Max 5MB)</div>
+                                <input type="file" class="file-input" id="receiptFile" accept=".jpg,.jpeg,.png,.pdf" onchange="handleFileSelect(this)">
+                            </div>
+                            <div id="filePreview"></div>
+                        </div>
+
+                        <button class="btn btn-primary" style="width: 100%;" onclick="submitManualPayment()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M10 9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Submit Payment Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="payment-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Payment Summary</h2>
+                    </div>
+
+                    <div class="booking-summary">
+                        {% if booking %}
+                        <div class="summary-item">
+                            <span class="summary-label">Booking Reference</span>
+                            <span class="summary-value">{{ booking.booking_reference_number }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Room</span>
+                            <span class="summary-value">{{ booking.room_number }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Hostel</span>
+                            <span class="summary-value">{{ booking.hostel_name }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Room Type</span>
+                            <span class="summary-value">{{ booking.room_type }}</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="summary-label">Amount Due</span>
+                            <span class="summary-value">Ksh {{ booking.room_price_per_sem }}</span>
+                        </div>
+                        {% else %}
+                        <div class="summary-item">
+                            <span class="summary-label">Payment Type</span>
+                            <span class="summary-value">Account Top-up</span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="summary-item">
+                            <span class="summary-label">Current Balance</span>
+                            <span class="summary-value">Ksh {{ "%.2f"|format(account_balance) }}</span>
+                        </div>
+                        
+                        <div class="summary-item" style="border-top: 2px solid rgba(255, 255, 255, 0.2); padding-top: 15px;">
+                            <span class="summary-label">Amount to Pay</span>
+                            <span class="summary-value summary-total" id="amountDisplay">
+                                Ksh {{ booking.room_price_per_sem if booking else '0' }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Amount Input for non-booking payments -->
+                    {% if not booking %}
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label class="form-label">Payment Amount</label>
+                        <input type="number" class="form-control" id="customAmount" placeholder="Enter amount to pay" min="100" step="100" onchange="updateAmount(this.value)">
+                        <div class="form-hint">Minimum amount: Ksh 100</div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Payment Processing -->
+                    <div id="paymentProcessing" class="payment-processing" style="display: none;">
+                        <div class="processing-spinner"></div>
+                        <h3>Processing Payment</h3>
+                        <p>Please wait while we process your payment...</p>
+                    </div>
+
+                    <!-- Payment Success -->
+                    <div id="paymentSuccess" class="payment-success" style="display: none;">
+                        <div class="success-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h3>Payment Successful!</h3>
+                        <p id="successMessage">Your payment has been processed successfully.</p>
+                        <div class="section-actions" style="justify-content: center; margin-top: 20px;">
+                            <a href="/student/bookings" class="btn btn-primary">View Bookings</a>
+                            <a href="/student/payments/history" class="btn btn-outline">Payment History</a>
+                            <button class="btn btn-outline" onclick="downloadReceipt()">Download Receipt</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Balance Card -->
+                <div class="payment-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Account Balance</h2>
+                    </div>
+                    <div style="text-align: center; padding: 20px 0;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 10px;">
+                            Ksh {{ "%.2f"|format(account_balance) }}
+                        </div>
+                        <p style="color: var(--text-light); margin-bottom: 15px;">
+                            Current available balance
+                        </p>
+                        <a href="/student/payments/history" class="btn btn-outline" style="width: 100%;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            View Payment History
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Support Information -->
+                <div class="payment-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Need Help?</h2>
+                    </div>
+                    <div style="text-align: center;">
+                        <p style="margin-bottom: 15px; color: var(--text-light);">
+                            Having trouble with your payment?
+                        </p>
+                        <a href="/student/support" class="btn btn-outline" style="width: 100%;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 11.5C21.0034 12.8199 20.6951 14.1219 20.1 15.3C19.3944 16.7118 18.3098 17.8992 16.9674 18.7293C15.6251 19.5594 14.0782 19.9994 12.5 20C11.1801 20.0034 9.87812 19.6951 8.7 19.1L3 21L4.9 15.3C4.30493 14.1219 3.99656 12.8199 4 11.5C4.00061 9.92179 4.44061 8.37488 5.27072 7.03258C6.10083 5.69028 7.28825 4.6056 8.7 3.90003C9.87812 3.30496 11.1801 2.99659 12.5 3.00003H13C15.0843 3.11502 17.053 3.99479 18.5291 5.47089C20.0052 6.94699 20.885 8.91568 21 11V11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Contact Support
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileToggle = document.getElementById('mobileMenuToggle');
+            
+            if (window.innerWidth <= 1024 && 
+                !sidebar.contains(event.target) && 
+                !mobileToggle.contains(event.target) &&
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        // Payment method selection
+        let selectedMethod = 'mpesa';
+        let selectedFile = null;
+
+        function selectPaymentMethod(method) {
+            selectedMethod = method;
+            
+            // Update UI
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            
+            // Show appropriate form
+            document.getElementById('mpesaForm').style.display = method === 'mpesa' ? 'block' : 'none';
+            document.getElementById('manualForm').style.display = method === 'manual' ? 'block' : 'none';
+        }
+
+        // File upload handling
+        function handleFileSelect(input) {
+            const file = input.files[0];
+            if (file) {
+                // Validate file type and size
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+                const maxSize = 5 * 1024 * 1024; // 5MB
+                
+                if (!validTypes.includes(file.type)) {
+                    alert('Please select a valid file type (JPG, PNG, or PDF)');
+                    input.value = '';
+                    return;
+                }
+                
+                if (file.size > maxSize) {
+                    alert('File size must be less than 5MB');
+                    input.value = '';
+                    return;
+                }
+                
+                selectedFile = file;
+                displayFilePreview(file);
+            }
+        }
+
+        function displayFilePreview(file) {
+            const preview = document.getElementById('filePreview');
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                preview.innerHTML = `
+                    <div class="file-preview">
+                        ${file.type.startsWith('image/') ? 
+                            `<img src="${e.target.result}" alt="Receipt preview">` :
+                            `<div class="file-icon">📄</div>`
+                        }
+                        <div class="file-details">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-size">${formatFileSize(file.size)}</div>
+                        </div>
+                        <button type="button" class="remove-file" onclick="removeFile()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        function removeFile() {
+            selectedFile = null;
+            document.getElementById('receiptFile').value = '';
+            document.getElementById('filePreview').innerHTML = '';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Drag and drop functionality
+        const receiptUpload = document.getElementById('receiptUpload');
+        
+        receiptUpload.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+        });
+        
+        receiptUpload.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+        });
+        
+        receiptUpload.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                document.getElementById('receiptFile').files = files;
+                handleFileSelect(document.getElementById('receiptFile'));
+            }
+        });
+
+        // Update amount display for custom payments
+        function updateAmount(value) {
+            if (value && value >= 100) {
+                document.getElementById('amountDisplay').textContent = 'Ksh ' + value;
+                // Update amount field in M-Pesa form
+                const amountField = document.getElementById('amount');
+                if (amountField) {
+                    amountField.value = 'Ksh ' + value;
+                }
+            }
+        }
+
+        // Enhanced payment processing
+        function processMpesaPayment() {
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            let amount = 0;
+            
+            // Get amount based on whether it's a booking or custom payment
+            {% if booking %}
+            amount = {{ booking.room_price_per_sem }};
+            {% else %}
+            const customAmount = document.getElementById('customAmount');
+            if (customAmount) {
+                const customAmountValue = customAmount.value;
+                if (!customAmountValue || customAmountValue < 100) {
+                    alert('Please enter a valid amount (minimum Ksh 100)');
+                    return;
+                }
+                amount = customAmountValue;
+            } else {
+                alert('Amount is required');
+                return;
+            }
+            {% endif %}
+            
+            if (!phoneNumber) {
+                alert('Please enter your phone number');
+                return;
+            }
+            
+            if (!/^07[0-9]{8}$/.test(phoneNumber)) {
+                alert('Please enter a valid Kenyan phone number (07XXXXXXXX)');
+                return;
+            }
+            
+            // Show processing state
+            document.getElementById('paymentProcessing').style.display = 'block';
+            
+            // Process payment immediately
+            processPayment('mpesa', {
+                phone_number: phoneNumber,
+                amount: amount
+            });
+        }
+
+        function submitManualPayment() {
+            const paymentMethod = document.getElementById('manualPaymentMethod').value;
+            let amount = 0;
+            const reference = document.getElementById('transactionReference').value;
+            const paymentDate = document.getElementById('paymentDate').value;
+            
+            // Get amount based on whether it's a booking or custom payment
+            {% if booking %}
+            amount = {{ booking.room_price_per_sem }};
+            {% else %}
+            const customAmount = document.getElementById('customAmount');
+            if (customAmount) {
+                const customAmountValue = customAmount.value;
+                if (!customAmountValue || customAmountValue < 100) {
+                    alert('Please enter a valid amount (minimum Ksh 100)');
+                    return;
+                }
+                amount = customAmountValue;
+            } else {
+                // Use manual amount field if custom amount doesn't exist
+                const manualAmountField = document.getElementById('manualAmount');
+                if (manualAmountField) {
+                    const manualAmountValue = manualAmountField.value;
+                    if (!manualAmountValue || manualAmountValue <= 0) {
+                        alert('Please enter valid amount');
+                        return;
+                    }
+                    amount = manualAmountValue;
+                } else {
+                    alert('Amount is required');
+                    return;
+                }
+            }
+            {% endif %}
+            
+            if (!paymentMethod) {
+                alert('Please select payment method');
+                return;
+            }
+            
+            if (!reference) {
+                alert('Please enter transaction reference');
+                return;
+            }
+            
+            if (!paymentDate) {
+                alert('Please select payment date');
+                return;
+            }
+            
+            if (!selectedFile) {
+                alert('Please upload payment receipt');
+                return;
+            }
+            
+            // Show processing state
+            document.getElementById('paymentProcessing').style.display = 'block';
+            
+            // Process payment immediately
+            processPayment('manual', {
+                payment_method: paymentMethod,
+                amount: amount,
+                reference: reference,
+                payment_date: paymentDate,
+                receipt: selectedFile
+            });
+        }
+
+        function processPayment(method, data) {
+            const formData = new FormData();
+            formData.append('payment_method', method);
+            {% if booking %}
+            formData.append('booking_id', '{{ booking.booking_id }}');
+            {% endif %}
+            formData.append('amount', data.amount);
+            
+            if (method === 'mpesa') {
+                formData.append('phone_number', data.phone_number);
+            } else {
+                formData.append('manual_payment_method', data.payment_method);
+                formData.append('transaction_reference', data.reference);
+                formData.append('payment_date', data.payment_date);
+                if (data.receipt) {
+                    formData.append('receipt', data.receipt);
+                }
+            }
+            
+            fetch('/student/payments/process', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                document.getElementById('paymentProcessing').style.display = 'none';
+                
+                if (result.success) {
+                    document.getElementById('paymentSuccess').style.display = 'block';
+                    // Update success message with new balance if available
+                    const successMessage = document.getElementById('successMessage');
+                    if (successMessage && result.new_balance) {
+                        successMessage.textContent = 
+                            'Payment processed successfully. Your new balance is Ksh ' + result.new_balance;
+                    }
+                    console.log('Payment processed successfully');
+                } else {
+                    alert('Payment failed: ' + result.message);
+                }
+            })
+            .catch(error => {
+                document.getElementById('paymentProcessing').style.display = 'none';
+                console.error('Error:', error);
+                alert('An error occurred while processing payment');
+            });
+        }
+
+        function downloadReceipt() {
+            // Generate and download receipt
+            window.open('/student/payments/receipt?payment_id=' + Date.now(), '_blank');
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default payment date to today
+            const today = new Date().toISOString().split('T')[0];
+            const paymentDateField = document.getElementById('paymentDate');
+            if (paymentDateField) {
+                paymentDateField.value = today;
+            }
+            
+            // Initialize custom amount field for non-booking payments
+            {% if not booking %}
+            const customAmountField = document.getElementById('customAmount');
+            if (customAmountField) {
+                customAmountField.addEventListener('input', function() {
+                    updateAmount(this.value);
+                });
+            }
+            {% endif %}
+            
+            // Initialize manual amount field for backward compatibility
+            const manualAmountField = document.getElementById('manualAmount');
+            if (manualAmountField && {% if booking %}true{% else %}false{% endif %}) {
+                manualAmountField.value = {{ booking.room_price_per_sem if booking else 0 }};
+            }
+        });
+    </script>
+{% endblock %}

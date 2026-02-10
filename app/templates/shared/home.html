@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nyumbani Hostels - Your Home Away From Home</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/favicon.ico')}}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <img src="{{ url_for('static', filename='images/nyumbani1.png')}}" alt="Nyumbani Logo">
+                    </div>
+                    <span>Nyumbani Hostels</span>
+                </div>
+                
+                <button class="mobile-menu-toggle" id="mobileMenuBtn">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+                
+                <nav id="mainNav">
+                    <ul>
+                        <li><a href="#features"><i class="fas fa-star"></i> Features</a></li>
+                        <li><a href="#gallery"><i class="fas fa-images"></i> Gallery</a></li>
+                        <li><a href="#rooms"><i class="fas fa-bed"></i> Rooms</a></li>
+                        <li><a href="#testimonials"><i class="fas fa-comment"></i> Testimonials</a></li>
+                        <li><a href="#locations"><i class="fas fa-map-marker-alt"></i> Locations</a></li>
+                    </ul>
+                </nav>
+                
+                <div class="auth-buttons">
+                    <a href="/login" class="btn btn-outline">Log In</a>
+                    <a href="/signup" class="btn btn-primary">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>Your Home Away From Home</h1>
+                    <p>Experience comfortable, secure, and affordable student accommodation with modern amenities and a vibrant community. Designed for students who value both academic success and social connections.</p>
+                    
+                    <div class="hero-buttons">
+                        <a href="/signup" class="btn btn-primary btn-large"><i class="fas fa-arrow-right"></i> Get Started</a>
+                        <a href="#gallery" class="btn btn-outline btn-large"><i class="fas fa-images"></i> View Gallery</a>
+                    </div>
+                    
+                    <div class="hero-stats">
+                        <div class="stat">
+                            <div class="stat-number">500+</div>
+                            <div class="stat-label">Happy Students</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">12</div>
+                            <div class="stat-label">Prime Locations</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">24/7</div>
+                            <div class="stat-label">Student Support</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-number">98%</div>
+                            <div class="stat-label">Satisfaction Rate</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hero-image">
+                    <div class="image-placeholder">
+                        <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Modern Room">
+                        <div class="image-badge">
+                            <span>Most Popular Choice</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Why Choose Our Hostel?</h2>
+                <p class="section-subtitle">We provide everything you need for a comfortable and productive student life</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-wifi"></i>
+                    </div>
+                    <h3 class="feature-title">High-Speed Internet</h3>
+                    <p class="feature-description">Stay connected with our fiber-optic internet, perfect for online classes, research, and entertainment. No buffering, no limits.</p>
+                    <div class="feature-extra">
+                        <span><i class="fas fa-check"></i> Unlimited bandwidth</span>
+                        <span><i class="fas fa-check"></i> Multiple device support</span>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3 class="feature-title">Secure Environment</h3>
+                    <p class="feature-description">24/7 security with CCTV surveillance and access control systems to ensure your safety at all times.</p>
+                    <div class="feature-extra">
+                        <span><i class="fas fa-check"></i> Biometric access</span>
+                        <span><i class="fas fa-check"></i> Security patrols</span>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="feature-title">Vibrant Community</h3>
+                    <p class="feature-description">Join a diverse community of students with regular events, study groups, and social activities.</p>
+                    <div class="feature-extra">
+                        <span><i class="fas fa-check"></i> Weekly social events</span>
+                        <span><i class="fas fa-check"></i> Study groups</span>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3 class="feature-title">Meal Plans</h3>
+                    <p class="feature-description">Nutritious and delicious meals prepared daily by our professional chefs. Various dietary options available.</p>
+                    <div class="feature-extra">
+                        <span><i class="fas fa-check"></i> Vegetarian options</span>
+                        <span><i class="fas fa-check"></i> Customizable plans</span>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-dumbbell"></i>
+                    </div>
+                    <h3 class="feature-title">Fitness Center</h3>
+                    <p class="feature-description">Stay active with our well-equipped gym, yoga classes, and sports facilities to maintain a healthy lifestyle.</p>
+                    <div class="feature-extra">
+                        <span><i class="fas fa-check"></i> Modern equipment</span>
+                        <span><i class="fas fa-check"></i> Fitness classes</span>
+                    </div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <h3 class="feature-title">Study Spaces</h3>
+                    <p class="feature-description">Quiet study rooms, libraries, and collaborative workspaces designed to enhance your academic performance.</p>
+                    <div class="feature-extra">
+                        <span><i class="fas fa-check"></i> 24/7 access</span>
+                        <span><i class="fas fa-check"></i> Group study rooms</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery" id="gallery">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Our Hostel Gallery</h2>
+                <p class="section-subtitle">Take a virtual tour of our modern facilities and comfortable living spaces</p>
+            </div>
+            
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <img src="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Student Room">
+                        <div class="gallery-overlay">
+                            <h3>Comfortable Rooms</h3>
+                            <p>Designed for rest and productivity</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <img src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Study Area">
+                        <div class="gallery-overlay">
+                            <h3>Study Areas</h3>
+                            <p>Perfect for academic focus</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <img src="https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Common Room">
+                        <div class="gallery-overlay">
+                            <h3>Common Areas</h3>
+                            <p>Socialize and relax</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <img src="https://images.unsplash.com/photo-1554679665-f5537f187268?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Cafeteria">
+                        <div class="gallery-overlay">
+                            <h3>Cafeteria</h3>
+                            <p>Delicious and nutritious meals</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Gym Facility">
+                        <div class="gallery-overlay">
+                            <h3>Fitness Center</h3>
+                            <p>Stay active and healthy</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <div class="gallery-placeholder">
+                        <img src="https://images.unsplash.com/photo-1544984243-ec57ea16fe25?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Outdoor Area">
+                        <div class="gallery-overlay">
+                            <h3>Outdoor Spaces</h3>
+                            <p>Relax and enjoy nature</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="gallery-cta">
+                <p>Want to see more? <a href="#">Take a virtual tour <i class="fas fa-arrow-right"></i></a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Locations Section -->
+    <section class="locations" id="locations">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Our Prime Locations</h2>
+                <p class="section-subtitle">Strategically located near major universities and transportation hubs</p>
+            </div>
+            
+            <div class="locations-grid">
+                <div class="location-card">
+                    <div class="location-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <h3>Downtown Campus</h3>
+                    <p>5 min walk to City University</p>
+                    <div class="location-features">
+                        <span><i class="fas fa-check"></i> Near city center</span>
+                        <span><i class="fas fa-check"></i> Public transport</span>
+                    </div>
+                </div>
+                
+                <div class="location-card">
+                    <div class="location-icon">
+                        <i class="fas fa-tree"></i>
+                    </div>
+                    <h3>Green Valley</h3>
+                    <p>10 min to Valley College</p>
+                    <div class="location-features">
+                        <span><i class="fas fa-check"></i> Quiet neighborhood</span>
+                        <span><i class="fas fa-check"></i> Park access</span>
+                    </div>
+                </div>
+                
+                <div class="location-card">
+                    <div class="location-icon">
+                        <i class="fas fa-subway"></i>
+                    </div>
+                    <h3>Metro Central</h3>
+                    <p>Direct metro to 3 universities</p>
+                    <div class="location-features">
+                        <span><i class="fas fa-check"></i> Metro station</span>
+                        <span><i class="fas fa-check"></i> Shopping mall</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Room Types Section -->
+    <section class="room-types" id="rooms">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Room Options</h2>
+                <p class="section-subtitle">Choose from our variety of comfortable and affordable accommodation options</p>
+            </div>
+            
+            <div class="rooms-grid">
+                <div class="room-card">
+                    <div class="room-badge">Most Popular</div>
+                    <div class="room-image">
+                        <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Single Room">
+                    </div>
+                    <div class="room-content">
+                        <h3 class="room-title">Single Room</h3>
+                        <div class="room-price">$450<span>/month</span></div>
+                        <ul class="room-features">
+                            <li><i class="fas fa-check"></i> Private bedroom</li>
+                            <li><i class="fas fa-check"></i> Shared bathroom</li>
+                            <li><i class="fas fa-check"></i> Study desk & chair</li>
+                            <li><i class="fas fa-check"></i> High-speed Wi-Fi</li>
+                            <li><i class="fas fa-check"></i> Access to all common areas</li>
+                            <li><i class="fas fa-check"></i> Weekly cleaning service</li>
+                        </ul>
+                        <a href="/signup" class="btn btn-primary"><i class="fas fa-calendar-check"></i> Book Now</a>
+                    </div>
+                </div>
+                
+                <div class="room-card">
+                    <div class="room-badge">Budget Friendly</div>
+                    <div class="room-image">
+                        <img src="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Shared Room">
+                    </div>
+                    <div class="room-content">
+                        <h3 class="room-title">Shared Room</h3>
+                        <div class="room-price">$300<span>/month</span></div>
+                        <ul class="room-features">
+                            <li><i class="fas fa-check"></i> Shared bedroom (2 people)</li>
+                            <li><i class="fas fa-check"></i> Shared bathroom</li>
+                            <li><i class="fas fa-check"></i> Personal study desk</li>
+                            <li><i class="fas fa-check"></i> High-speed Wi-Fi</li>
+                            <li><i class="fas fa-check"></i> Access to all common areas</li>
+                            <li><i class="fas fa-check"></i> Weekly cleaning service</li>
+                        </ul>
+                        <a href="/signup" class="btn btn-primary"><i class="fas fa-calendar-check"></i> Book Now</a>
+                    </div>
+                </div>
+                
+                <div class="room-card">
+                    <div class="room-badge">Premium</div>
+                    <div class="room-image">
+                        <img src="https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Premium Room">
+                    </div>
+                    <div class="room-content">
+                        <h3 class="room-title">Premium Suite</h3>
+                        <div class="room-price">$650<span>/month</span></div>
+                        <ul class="room-features">
+                            <li><i class="fas fa-check"></i> Private bedroom with ensuite</li>
+                            <li><i class="fas fa-check"></i> Premium furnishings</li>
+                            <li><i class="fas fa-check"></i> Study area with ergonomic chair</li>
+                            <li><i class="fas fa-check"></i> High-speed Wi-Fi</li>
+                            <li><i class="fas fa-check"></i> Priority access to facilities</li>
+                            <li><i class="fas fa-check"></i> Daily cleaning service</li>
+                        </ul>
+                        <a href="/signup" class="btn btn-primary"><i class="fas fa-calendar-check"></i> Book Now</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="rooms-cta">
+                <p>All room types include utilities, Wi-Fi, and access to common facilities. <a href="#">View detailed pricing <i class="fas fa-arrow-right"></i></a></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">What Students Say</h2>
+                <p class="section-subtitle">Hear from our residents about their experience living in our hostels</p>
+            </div>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"Living here has been amazing! The community is so welcoming, and the facilities are top-notch. It truly feels like a home away from home. The study rooms are perfect for late-night sessions."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <img src="https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&q=80" alt="Sarah Johnson">
+                        </div>
+                        <div class="author-info">
+                            <h4>Sarah Johnson</h4>
+                            <p>Computer Science Student</p>
+                            <span>Living here for 2 years</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"The high-speed internet and study rooms have been a game-changer for my academic success. I couldn't ask for a better place to live as a student. The location is perfect - just 5 minutes from campus!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&q=80" alt="Michael Rodriguez">
+                        </div>
+                        <div class="author-info">
+                            <h4>Michael Rodriguez</h4>
+                            <p>Engineering Student</p>
+                            <span>Living here for 1 year</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-rating">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <p class="testimonial-text">"I love the community events and the gym facilities. It's so easy to meet new people here. The staff is always helpful and responsive to any issues. Definitely recommend to any student!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&h=100&q=80" alt="Jessica Chen">
+                        </div>
+                        <div class="author-info">
+                            <h4>Jessica Chen</h4>
+                            <p>Business Administration</p>
+                            <span>Living here for 6 months</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta" id="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Find Your New Home?</h2>
+                <p>Join hundreds of students who have found their perfect accommodation with us. Create an account today and explore our available rooms.</p>
+                <div class="cta-buttons">
+                    <a href="/signup" class="btn btn-primary btn-large"><i class="fas fa-user-plus"></i> Sign Up Now</a>
+                    <a href="#rooms" class="btn btn-outline btn-large"><i class="fas fa-bed"></i> Browse Rooms</a>
+                </div>
+                <div class="cta-features">
+                    <span><i class="fas fa-check"></i> No booking fees</span>
+                    <span><i class="fas fa-check"></i> Flexible cancellation</span>
+                    <span><i class="fas fa-check"></i> Best price guarantee</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Nyumbani Hostels</h3>
+                    <p style="color: rgba(255,255,255,0.6); margin-bottom: 20px;">Your home away from home with modern amenities and a vibrant community.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="#features"><i class="fas fa-chevron-right"></i> Features</a></li>
+                        <li><a href="#gallery"><i class="fas fa-chevron-right"></i> Gallery</a></li>
+                        <li><a href="#rooms"><i class="fas fa-chevron-right"></i> Rooms</a></li>
+                        <li><a href="#testimonials"><i class="fas fa-chevron-right"></i> Testimonials</a></li>
+                        <li><a href="#locations"><i class="fas fa-chevron-right"></i> Locations</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Support</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Help Center</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> FAQs</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Privacy Policy</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Terms of Service</a></li>
+                        <li><a href="#"><i class="fas fa-chevron-right"></i> Contact Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Contact Info</h3>
+                    <ul class="footer-links">
+                        <li><i class="fas fa-envelope"></i> info@nyumbanihostels.com</li>
+                        <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
+                        <li><i class="fas fa-map-marker-alt"></i> 123 University Ave, Campus Town</li>
+                    </ul>
+                    <div class="auth-buttons">
+                        <a href="/login" class="btn btn-outline">Log In</a>
+                        <a href="/signup" class="btn btn-primary">Sign Up</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2023 Nyumbani Hostels. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            const nav = document.getElementById('mainNav');
+            nav.classList.toggle('active');
+            this.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const nav = document.getElementById('mainNav');
+            const menuBtn = document.getElementById('mobileMenuBtn');
+            
+            if (!nav.contains(event.target) && !menuBtn.contains(event.target) && nav.classList.contains('active')) {
+                nav.classList.remove('active');
+                menuBtn.classList.remove('active');
+            }
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if(targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if(targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                    
+                    // Close mobile menu if open
+                    const nav = document.getElementById('mainNav');
+                    const menuBtn = document.getElementById('mobileMenuBtn');
+                    nav.classList.remove('active');
+                    menuBtn.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

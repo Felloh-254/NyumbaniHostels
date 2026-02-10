@@ -1,0 +1,516 @@
+{% extends "/admin/admin_base.html" %}
+{% block title %}- Admin Dashboard {% endblock %}
+{% block content %}
+    <style>    
+        /* Content Sections */
+        .content-section {
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(120, 119, 198, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .chart-card {
+            background: rgba(20, 20, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            margin-top: 15px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-box input {
+                width: 180px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+    </style>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+            <div class="page-title">
+                <h1>Admin Dashboard</h1>
+                <p>Welcome back, Admin {{user.first_name}}. Here's what's happening today.</p>
+            </div>
+            <div class="header-actions">
+                <div class="search-box">
+                    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="notification-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="notification-badge">3</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <!-- Total Students -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="stat-trend {% if stats.total_students_change >= 0 %}trend-up{% else %}trend-down{% endif %}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            {% if stats['total_students_change'] >= 0 %}
+                            <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            {% else %}
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            {% endif %}
+                        </svg>
+                        {{ stats['total_students_change'] }}%
+                    </div>
+                </div>
+                <div class="stat-value">{{ stats['total_students'] }}</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+
+            <!-- Occupied Rooms -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="stat-trend {% if stats.occupied_rooms_change >= 0 %}trend-up{% else %}trend-down{% endif %}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            {% if stats['occupied_rooms_change'] >= 0 %}
+                            <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            {% else %}
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            {% endif %}
+                        </svg>
+                        {{ stats['occupied_rooms_change'] }}%
+                    </div>
+                </div>
+                <div class="stat-value">{{ stats['occupied_rooms'] }}</div>
+                <div class="stat-label">Occupied Rooms</div>
+            </div>
+
+            <!-- Pending Requests -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M19.4 15C19.2669 15.3044 19.1343 15.6087 19.0001 15.913C18.509 16.8954 17.8381 17.7487 17.0715 18.5153C15.6094 19.9774 13.695 20.761 11.7885 20.925C10.6824 21.0212 9.56619 20.8859 8.51563 20.5156C7.46506 20.1453 6.50492 19.5487 5.69697 18.7578C4.10469 17.1655 3.23828 15.0656 3.075 12.7885C2.91172 10.5114 3.52266 8.39063 4.875 6.75C5.46094 6.03281 6.15469 5.41406 6.9375 4.92188" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 4.5V12L15.375 13.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="stat-trend {% if stats.pending_requests_change >= 0 %}trend-up{% else %}trend-down{% endif %}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            {% if stats['pending_requests_change'] >= 0 %}
+                            <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            {% else %}
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            {% endif %}
+                        </svg>
+                        {{ stats['pending_requests_change'] }}%
+                    </div>
+                </div>
+                <div class="stat-value">{{ stats['pending_requests'] }}</div>
+                <div class="stat-label">Pending Requests</div>
+            </div>
+
+            <!-- Monthly Revenue -->
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                             xmlns="http://www.w3.org/2000/svg">
+                          <text x="3" y="17"
+                                font-size="10"
+                                font-family="Arial, sans-serif"
+                                fill="currentColor"
+                                font-weight="bold">KSh</text>
+                        </svg>
+                    </div>
+                    <div class="stat-trend {% if stats.monthly_revenue_change >= 0 %}trend-up{% else %}trend-down{% endif %}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            {% if stats['monthly_revenue_change'] >= 0 %}
+                            <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            {% else %}
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            {% endif %}
+                        </svg>
+                        {{ stats['monthly_revenue_change'] }}%
+                    </div>
+                </div>
+                <div class="stat-value">Ksh. {{ stats['monthly_revenue'] }}</div>
+                <div class="stat-label">Monthly Revenue</div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="section-header">
+                    <h3 class="section-title">Occupancy Overview</h3>
+                    <div class="section-actions">
+                        <button class="btn btn-outline" onclick="changeChartPeriod('weekly')">Weekly</button>
+                        <button class="btn btn-primary" onclick="changeChartPeriod('monthly')">Monthly</button>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="occupancyChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="section-header">
+                    <h3 class="section-title">Room Status</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="roomStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Students Section -->
+        <div class="content-section">
+            <div class="section-header">
+                <h3 class="section-title">Recent Students</h3>
+                <div class="section-actions">
+                    <button class="btn btn-outline">View All</button>
+                    <button class="btn btn-primary">Add Student</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Student ID</th>
+                            <th>Room</th>
+                            <th>Check-in Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in recent_students %}
+                            <tr>
+                                <td>
+                                    <div class="user-info">
+                                        <div class="user-avatar">{{student.user_first_name[0]}}{{student.user_last_name[0]}}</div>
+                                        <div>
+                                            <div>{{student.user_first_name}} {{student.user_last_name}}</div>
+                                            <div style="font-size: 0.8rem; color: var(--text-light);">{{student.user_email}}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{student.profile_student_id}}</td>
+                                <td>{{student.room_number}}</td>
+                                <td>{{student.allocation_date}}</td>
+                                <td><span class="status status-active">{{student.booking_status}}</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="action-btn">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </button>
+                                        <button class="action-btn">
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileToggle = document.getElementById('mobileMenuToggle');
+            
+            if (window.innerWidth <= 1024 && 
+                !sidebar.contains(event.target) && 
+                !mobileToggle.contains(event.target) &&
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        // Chart initialization
+        let occupancyChart, roomStatusChart;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+        });
+
+        function initializeCharts() {
+            // Occupancy Chart
+            const occupancyCtx = document.getElementById('occupancyChart').getContext('2d');
+            occupancyChart = new Chart(occupancyCtx, {
+                type: 'line',
+                data: {
+                    labels: {{ stats.chart_data.occupancy_months | tojson }},
+                    datasets: [{
+                        label: 'Room Occupancy',
+                        data: {{ stats.chart_data.occupancy_counts | tojson }},
+                        borderColor: 'rgb(99, 102, 241)',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: 'rgb(99, 102, 241)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Room Status Chart
+            const roomStatusCtx = document.getElementById('roomStatusChart').getContext('2d');
+            roomStatusChart = new Chart(roomStatusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Occupied', 'Pending', 'Available'],
+                    datasets: [{
+                        data: [
+                            {{ stats.chart_data.room_status.occupied }},
+                            {{ stats.chart_data.room_status.pending }},
+                            {{ stats.chart_data.room_status.available }}
+                        ],
+                        backgroundColor: [
+                            'rgb(34, 197, 94)',  // Green for occupied
+                            'rgb(249, 115, 22)', // Orange for pending
+                            'rgb(59, 130, 246)'  // Blue for available
+                        ],
+                        borderColor: 'rgba(20, 20, 30, 0.8)',
+                        borderWidth: 2,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff'
+                        }
+                    }
+                }
+            });
+        }
+
+        function changeChartPeriod(period) {
+            // Update button states
+            document.querySelectorAll('.section-actions .btn').forEach(btn => {
+                btn.classList.remove('btn-primary');
+                btn.classList.add('btn-outline');
+            });
+            event.target.classList.remove('btn-outline');
+            event.target.classList.add('btn-primary');
+
+            // Here i will make an AJAX call to get new data
+            // For now, i'll just update the chart title
+            const chartTitle = document.querySelector('.chart-card .section-title');
+            if (period === 'weekly') {
+                chartTitle.textContent = 'Weekly Occupancy';
+                // I would update chart data here with AJAX
+            } else {
+                chartTitle.textContent = 'Monthly Occupancy';
+                // I would update chart data here with AJAX
+            }
+        }
+
+        // Make charts responsive on window resize
+        window.addEventListener('resize', function() {
+            if (occupancyChart) {
+                occupancyChart.resize();
+            }
+            if (roomStatusChart) {
+                roomStatusChart.resize();
+            }
+        });
+    </script>
+{% endblock %}

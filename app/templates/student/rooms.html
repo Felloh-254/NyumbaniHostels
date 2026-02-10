@@ -1,0 +1,802 @@
+{% extends "/student/student_base.html" %}
+{% block title %}- Available Rooms {% endblock %}
+{% block content %}
+    <style>    
+        /* Content Sections */
+        .content-section {
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(120, 119, 198, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: rgba(20, 20, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Rooms Grid */
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .room-card {
+            background: rgba(20, 20, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .room-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .room-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+            flex: 1;
+        }
+
+        .room-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0;
+        }
+
+        .room-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        .meta-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .room-description {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .room-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .feature-tag {
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .room-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .availability-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .available {
+            background: rgba(34, 197, 94, 0.2);
+            color: rgb(34, 197, 94);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .occupied {
+            background: rgba(239, 68, 68, 0.2);
+            color: rgb(239, 68, 68);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        /* Room Images */
+        .room-images {
+            position: relative;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .room-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .room-card:hover .room-image {
+            transform: scale(1.05);
+        }
+
+        .image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .pagination-btn {
+            padding: 8px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-light);
+        }
+
+        /* No Results */
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+
+        .no-results-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .rooms-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .rooms-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-box input {
+                width: 180px;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .room-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .room-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+            <div class="page-title">
+                <h1>Available Rooms</h1>
+                <p>Browse and book available hostel rooms</p>
+            </div>
+            <div class="header-actions">
+                <div class="search-box">
+                    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search rooms...">
+                </div>
+                <div class="notification-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="notification-badge">{{ notifications_count }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label class="filter-label">Hostel</label>
+                    <select class="form-control" id="hostelFilter">
+                        <option value="">All Hostels</option>
+                        {% for hostel in hostels %}
+                            <option value="{{ hostel.hostel_id }}">{{ hostel.hostel_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Room Type</label>
+                    <select class="form-control" id="roomTypeFilter">
+                        <option value="">All Types</option>
+                        <option value="Single">Single</option>
+                        <option value="Double">Double</option>
+                        <option value="Shared">Shared</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Price Range</label>
+                    <select class="form-control" id="priceFilter">
+                        <option value="">Any Price</option>
+                        <option value="0-5000">Under Ksh 5,000</option>
+                        <option value="5000-10000">Ksh 5,000 - 10,000</option>
+                        <option value="10000-20000">Ksh 10,000 - 20,000</option>
+                        <option value="20000-999999">Over Ksh 20,000</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label class="filter-label">Capacity</label>
+                    <select class="form-control" id="capacityFilter">
+                        <option value="">Any Capacity</option>
+                        <option value="1">1 Person</option>
+                        <option value="2">2 People</option>
+                        <option value="3">3+ People</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <button class="btn btn-outline" onclick="resetFilters()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M6 18L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Count -->
+        <div class="section-header">
+            <h3 class="section-title">
+                Available Rooms 
+                <span style="color: var(--text-light); font-size: 1rem; margin-left: 10px;">
+                    ({{ rooms|length }} found)
+                </span>
+            </h3>
+            <div class="section-actions">
+                <button class="btn btn-outline" onclick="sortRooms('price_asc')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Sort
+                </button>
+            </div>
+        </div>
+
+        <!-- Rooms Grid -->
+        <div class="rooms-grid" id="roomsContainer">
+            {% for room in rooms %}
+            <div class="room-card" 
+                 data-room-id="{{ room.room_id }}"
+                 data-hostel="{{ room.hostel_id }}"
+                 data-room-type="{{ room.room_type }}"
+                 data-price="{{ room.room_price_per_sem }}"
+                 data-capacity="{{ room.room_capacity }}">
+                
+                <span class="availability-badge available">
+                    Available
+                </span>
+                
+                <div class="room-images">
+                    {% if room.images and room.images[0].image_url %}
+                        {% if room.images[0].image_url.startswith('http') %}
+                        <img src="{{ room.images[0].image_url }}" alt="{{ room.room_number }}" class="room-image">
+                        {% else %}
+                        <img src="{{ url_for('static', filename=room.images[0].image_url) }}" alt="{{ room.room_number }}" class="room-image">
+                        {% endif %}
+                    {% else %}
+                    <div class="image-placeholder">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="room-header">
+                    <h3 class="room-title">{{ room.room_number }} - {{ room.hostel_name }}</h3>
+                    <div class="room-price">Ksh {{ room.room_price_per_sem }}</div>
+                </div>
+                
+                <div class="room-meta">
+                    <div class="meta-item">
+                        <svg class="meta-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {{ room.spots_left }} Beds Available{{ 's' if room.spots_left > 1 else '' }}
+                    </div>
+                    <div class="meta-item">
+                        <svg class="meta-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L20 7V21H4V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 22V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 12H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {{ room.room_type }}
+                    </div>
+                    <div class="meta-item">
+                        <svg class="meta-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 20.5C13.7239 20.5 15.3772 19.8152 16.5962 18.5962C17.8152 17.3772 18.5 15.7239 18.5 14C18.5 12.2761 17.8152 10.6228 16.5962 9.40381C15.3772 8.18482 13.7239 7.5 12 7.5C10.2761 7.5 8.62279 8.18482 7.40381 9.40381C6.18482 10.6228 5.5 12.2761 5.5 14C5.5 15.7239 6.18482 17.3772 7.40381 18.5962C8.62279 19.8152 10.2761 20.5 12 20.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 14V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {{ room.hostel_location }}
+                    </div>
+                </div>
+                
+                <div class="room-description">
+                    {{ room.hostel_description or 'Comfortable accommodation with all necessary amenities.' }}
+                </div>
+                
+                <div class="room-features">
+                    <span class="feature-tag">WiFi</span>
+                    <span class="feature-tag">Security</span>
+                    <span class="feature-tag">Laundry</span>
+                    {% if room.room_type == 'Single' %}
+                    <span class="feature-tag">Private</span>
+                    {% elif room.room_type == 'Double' %}
+                    <span class="feature-tag">Shared</span>
+                    {% endif %}
+                </div>
+                
+                <div class="room-actions">
+                    <button class="btn btn-outline" onclick="viewRoomDetails({{ room.room_id }})">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        View Details
+                    </button>
+                    <button class="btn btn-success" onclick="bookRoom({{ room.room_id }})">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Book Now
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- No Results Message -->
+        {% if not rooms %}
+        <div class="no-results">
+            <div class="no-results-icon">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
+            <h3>No Rooms Available</h3>
+            <p>There are currently no rooms matching your criteria. Please try different filters.</p>
+        </div>
+        {% endif %}
+
+        <!-- Pagination -->
+        {% if rooms and total_pages > 1 %}
+        <div class="pagination">
+            <button class="pagination-btn" id="prevPage" onclick="changePage({{ current_page - 1 }})" {% if current_page <= 1 %}disabled{% endif %}>
+                Previous
+            </button>
+            <span class="pagination-info">
+                Page {{ current_page }} of {{ total_pages }}
+            </span>
+            <button class="pagination-btn" id="nextPage" onclick="changePage({{ current_page + 1 }})" {% if current_page >= total_pages %}disabled{% endif %}>
+                Next
+            </button>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobileMenuToggle').addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        });
+
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const mobileToggle = document.getElementById('mobileMenuToggle');
+            
+            if (window.innerWidth <= 1024 && 
+                !sidebar.contains(event.target) && 
+                !mobileToggle.contains(event.target) &&
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        // Filter functionality
+        let currentFilters = {
+            hostel: '',
+            roomType: '',
+            price: '',
+            capacity: '',
+            search: ''
+        };
+
+        // Enhanced filter functionality
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const hostelFilter = document.getElementById('hostelFilter').value;
+            const roomTypeFilter = document.getElementById('roomTypeFilter').value;
+            const priceFilter = document.getElementById('priceFilter').value;
+            const capacityFilter = document.getElementById('capacityFilter').value;
+
+            currentFilters = {
+                search: searchTerm,
+                hostel: hostelFilter,
+                roomType: roomTypeFilter,
+                price: priceFilter,
+                capacity: capacityFilter
+            };
+
+            filterRoomsClientSide();
+        }
+
+        function filterRoomsClientSide() {
+            const rooms = document.querySelectorAll('.room-card');
+            let visibleCount = 0;
+
+            rooms.forEach(room => {
+                const roomText = room.textContent.toLowerCase();
+                const roomHostel = room.getAttribute('data-hostel') || '';
+                const roomType = room.getAttribute('data-room-type') || '';
+                const roomPrice = parseFloat(room.getAttribute('data-price') || 0);
+                const roomCapacity = parseInt(room.getAttribute('data-capacity') || 0);
+
+                let matches = true;
+
+                // Search filter
+                if (currentFilters.search && !roomText.includes(currentFilters.search.toLowerCase())) {
+                    matches = false;
+                }
+
+                // Hostel filter
+                if (currentFilters.hostel && roomHostel !== currentFilters.hostel) {
+                    matches = false;
+                }
+
+                // Room type filter
+                if (currentFilters.roomType && roomType !== currentFilters.roomType) {
+                    matches = false;
+                }
+
+                // Price filter
+                if (currentFilters.price) {
+                    const [min, max] = currentFilters.price.split('-').map(Number);
+                    if (roomPrice < min || roomPrice > max) {
+                        matches = false;
+                    }
+                }
+
+                // Capacity filter
+                if (currentFilters.capacity) {
+                    const capacity = parseInt(currentFilters.capacity);
+                    if (capacity === 3) {
+                        if (roomCapacity < 3) matches = false;
+                    } else if (roomCapacity !== capacity) {
+                        matches = false;
+                    }
+                }
+
+                if (matches) {
+                    room.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    room.style.display = 'none';
+                }
+            });
+
+            // Update results count
+            const resultsCount = document.querySelector('.section-title span');
+            if (resultsCount) {
+                resultsCount.textContent = `(${visibleCount} found)`;
+            }
+
+            // Show/hide no results message
+            const noResults = document.querySelector('.no-results');
+            if (noResults) {
+                noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+            }
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('hostelFilter').value = '';
+            document.getElementById('roomTypeFilter').value = '';
+            document.getElementById('priceFilter').value = '';
+            document.getElementById('capacityFilter').value = '';
+            
+            currentFilters = {
+                search: '',
+                hostel: '',
+                roomType: '',
+                price: '',
+                capacity: ''
+            };
+
+            filterRoomsClientSide();
+        }
+
+        function sortRooms(sortBy) {
+            // Sorting logic to be implemented
+            alert(`Sorting by: ${sortBy}`);
+        }
+
+        function changePage(page) {
+            // Implement pagination
+            window.location.href = `/student/rooms?page=${page}`;
+        }
+
+        function viewRoomDetails(roomId) {
+            // Implement room details view
+            window.location.href = `/student/rooms/${roomId}`;
+        }
+
+        function bookRoom(roomId) {
+            if (confirm('Are you sure you want to book this room?')) {
+                // Send booking request to server
+                fetch('/student/bookings/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        room_id: roomId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Booking request submitted successfully!');
+                        window.location.href = '/student/bookings';
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while booking the room.');
+                });
+            }
+        }
+
+        // Event listeners for filters
+        document.getElementById('searchInput').addEventListener('input', applyFilters);
+        document.getElementById('hostelFilter').addEventListener('change', applyFilters);
+        document.getElementById('roomTypeFilter').addEventListener('change', applyFilters);
+        document.getElementById('priceFilter').addEventListener('change', applyFilters);
+        document.getElementById('capacityFilter').addEventListener('change', applyFilters);
+
+        // Initialize filters
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add data attributes to room cards for client-side filtering
+            document.querySelectorAll('.room-card').forEach(room => {
+                const roomId = room.getAttribute('data-room-id');
+            });
+        });
+    </script>
+{% endblock %}

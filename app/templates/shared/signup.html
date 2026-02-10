@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nyumbani Hostels - Sign Up</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/favicon.ico')}}">
+</head>
+<body>
+    <div class="signup-container">
+        <div class="signup-card">
+            <div class="signup-header">
+                <h1>Create Account</h1>
+                <p>Join our student hostel community</p>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="step-indicators">
+                <div class="step-indicator active" data-step="1">1</div>
+                <div class="step-indicator" data-step="2">2</div>
+                <div class="step-indicator" data-step="3">3</div>
+                <div class="step-indicator" data-step="4">4</div>
+            </div>
+
+            <form id="signupForm" class="signup-form">
+                <!-- Step 1: Personal Information -->
+                <div class="form-step active" data-step="1">
+                    <h2 class="step-title">Personal Information</h2>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="firstName">First Name *</label>
+                            <input type="text" id="firstName" name="firstName" required>
+                            <span class="error-message" id="firstNameError"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="lastName">Last Name *</label>
+                            <input type="text" id="lastName" name="lastName" required>
+                            <span class="error-message" id="lastNameError"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender *</label>
+                        <select id="gender" name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                        <span class="error-message" id="genderError"></span>
+                    </div>
+
+                    <div class="form-navigation">
+                        <button type="button" class="nav-btn btn-primary" id="nextBtn1">
+                            <span class="btn-text">Next</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Contact Information -->
+                <div class="form-step" data-step="2">
+                    <h2 class="step-title">Contact Information</h2>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required>
+                        <span class="error-message" id="emailError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+254700000000">
+                        <span class="error-message" id="phoneError"></span>
+                    </div>
+
+                    <div class="form-navigation">
+                        <button type="button" class="nav-btn btn-secondary" id="prevBtn2">
+                            <span class="btn-text">Previous</span>
+                        </button>
+                        <button type="button" class="nav-btn btn-primary" id="nextBtn2">
+                            <span class="btn-text">Next</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Student Information -->
+                <div class="form-step" data-step="3">
+                    <h2 class="step-title">Student Information</h2>
+                    
+                    <div class="form-group">
+                        <label for="studentId">Student ID *</label>
+                        <input type="text" id="studentId" name="studentId" required>
+                        <span class="error-message" id="studentIdError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emergencyContact">Emergency Contact</label>
+                        <input type="tel" id="emergencyContact" name="emergencyContact" placeholder="+254700000000">
+                        <span class="error-message" id="emergencyContactError"></span>
+                    </div>
+
+                    <div class="form-navigation">
+                        <button type="button" class="nav-btn btn-secondary" id="prevBtn3">
+                            <span class="btn-text">Previous</span>
+                        </button>
+                        <button type="button" class="nav-btn btn-primary" id="nextBtn3">
+                            <span class="btn-text">Next</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Security -->
+                <div class="form-step" data-step="4">
+                    <h2 class="step-title">Security</h2>
+                    
+                    <div class="form-group">
+                        <label for="password">Password *</label>
+                        <input type="password" id="password" name="password" required>
+                        <span class="error-message" id="passwordError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password *</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        <span class="error-message" id="confirmPasswordError"></span>
+                    </div>
+
+                    <div class="password-requirements">
+                        <p>Password must contain:</p>
+                        <ul>
+                            <li id="req-length">At least 8 characters</li>
+                            <li id="req-uppercase">One uppercase letter</li>
+                            <li id="req-lowercase">One lowercase letter</li>
+                            <li id="req-number">One number</li>
+                            <li id="req-special">One special character</li>
+                        </ul>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <input type="checkbox" id="terms" name="terms" required>
+                        <label for="terms">I agree to the <a href="#" class="link">Terms of Service</a> and <a href="#" class="link">Privacy Policy</a></label>
+                        <span class="error-message" id="termsError"></span>
+                    </div>
+
+                    <div class="form-navigation">
+                        <button type="button" class="nav-btn btn-secondary" id="prevBtn4">
+                            <span class="btn-text">Previous</span>
+                        </button>
+                        <button type="submit" class="nav-btn btn-primary" id="submitBtn">
+                            <span class="btn-text">Create Account</span>
+                            <div class="spinner"></div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="login-link">
+                    Already have an account? <a href="/login" class="link">Sign In</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/signup.js') }}"></script>
+    <script>
+        // Initialize the form when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new SignupForm();
+        });
+    </script>
+</body>
+</html>

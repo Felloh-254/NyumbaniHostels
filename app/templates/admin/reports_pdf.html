@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Nyumbani Hostels - Reports</title>
+    <style>
+        /* WeasyPrint compatible CSS */
+        @page {
+            size: A4;
+            margin: 1.5cm;
+            
+            @bottom-right {
+                content: "Page " counter(page) " of " counter(pages);
+                font-size: 10px;
+                color: #666;
+            }
+            
+            @top-center {
+                content: "Nyumbani Hostels - Analytical Report";
+                font-size: 12px;
+                color: #666;
+            }
+        }
+        
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            line-height: 1.4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+        }
+        
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #2c3e50;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .header .subtitle {
+            color: #7f8c8d;
+            font-size: 12px;
+            margin: 5px 0 0 0;
+        }
+        
+        .report-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 10px;
+            color: #666;
+        }
+        
+        .section {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            background: #2c3e50;
+            color: white;
+            padding: 8px 12px;
+            margin: 15px 0 12px 0;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 4px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 12px;
+            text-align: center;
+            background: #f8f9fa;
+            page-break-inside: avoid;
+        }
+        
+        .stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 5px 0;
+        }
+        
+        .stat-label {
+            font-size: 10px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+        }
+        
+        .tables-container {
+            margin: 15px 0;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 10px;
+            page-break-inside: avoid;
+        }
+        
+        .data-table th {
+            background: #34495e;
+            color: white;
+            padding: 8px;
+            text-align: left;
+            font-weight: bold;
+            border: 1px solid #2c3e50;
+        }
+        
+        .data-table td {
+            padding: 6px 8px;
+            border: 1px solid #ddd;
+        }
+        
+        .data-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 3px 6px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .status-confirmed { background: #d4edda; color: #155724; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+        
+        .summary-box {
+            background: #e8f4f8;
+            border: 1px solid #b8d8e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .summary-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        
+        .summary-item {
+            text-align: center;
+        }
+        
+        .summary-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .summary-label {
+            font-size: 10px;
+            color: #7f8c8d;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            font-size: 9px;
+            color: #666;
+            text-align: center;
+        }
+        
+        .chart-placeholder {
+            background: #f8f9fa;
+            border: 1px dashed #ddd;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+        
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 9px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            margin-right: 4px;
+            border-radius: 2px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e9ecef;
+            border-radius: 3px;
+            margin-top: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #28a745;
+            border-radius: 3px;
+        }
+        
+        /* Two-column layout */
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        /* Page break controls */
+        .page-break {
+            page-break-before: always;
+        }
+        
+        .keep-together {
+            page-break-inside: avoid;
+        }
+        
+        /* Print-specific styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            .section {
+                page-break-inside: avoid;
+            }
+            
+            .data-table {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <div class="header">
+        <h1>Nyumbani Hostels</h1>
+        <div class="subtitle">Comprehensive Analytical Report</div>
+        <div class="report-meta">
+            <div>Generated on: {{ generated_at.strftime('%Y-%m-%d at %H:%M:%S') }}</div>
+            <div>Report Period: Last 30 Days</div>
+        </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div class="section keep-together">
+        <div class="section-title">Executive Summary</div>
+        <div class="summary-box">
+            <div class="summary-title">Key Performance Indicators</div>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="summary-value">Ksh {{ "%.2f"|format(reports.total_revenue or 0) }}</div>
+                    <div class="summary-label">Total Revenue</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">{{ reports.total_users or 0 }}</div>
+                    <div class="summary-label">Registered Students</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">{{ reports.confirmed_bookings or 0 }}</div>
+                    <div class="summary-label">Active Bookings</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">{{ reports.total_rooms or 0 }}</div>
+                    <div class="summary-label">Total Rooms</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">
+                        {% if reports.total_rooms and reports.total_rooms > 0 %}
+                            {{ ((reports.confirmed_bookings or 0) / reports.total_rooms * 100)|round|int }}%
+                        {% else %}
+                            0%
+                        {% endif %}
+                    </div>
+                    <div class="summary-label">Occupancy Rate</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-value">Ksh {{ "%.2f"|format(reports.monthly_revenue or 0) }}</div>
+                    <div class="summary-label">Monthly Revenue</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Statistics -->
+    <div class="section keep-together">
+        <div class="section-title">Key Statistics</div>
+        <div class="stats-grid">
+            <!-- Booking Statistics -->
+            <div class="stat-card">
+                <div class="stat-label">Total Bookings</div>
+                <div class="stat-value">{{ reports.total_bookings or 0 }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Confirmed</div>
+                <div class="stat-value">{{ reports.confirmed_bookings or 0 }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Pending</div>
+                <div class="stat-value">{{ reports.pending_bookings or 0 }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Cancelled</div>
+                <div class="stat-value">{{ reports.cancelled_bookings or 0 }}</div>
+            </div>
+            
+            <!-- Payment Statistics -->
+            <div class="stat-card">
+                <div class="stat-label">Successful Payments</div>
+                <div class="stat-value">{{ reports.successful_payments or 0 }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Failed Payments</div>
+                <div class="stat-value">{{ reports.failed_payments or 0 }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Male Students</div>
+                <div class="stat-value">{{ reports.male_users or 0 }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Female Students</div>
+                <div class="stat-value">{{ reports.female_users or 0 }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Trends Section -->
+    <div class="section keep-together">
+        <div class="section-title">Data Trends & Analysis</div>
+        
+        <!-- Booking Trends -->
+        <div class="chart-placeholder">
+            <strong>Monthly Booking Trends</strong><br>
+            {% for trend in charts.booking_trends %}
+            {{ trend.month }}: {{ trend.booking_count }} bookings<br>
+            {% endfor %}
+        </div>
+        
+        <!-- Revenue Trends -->
+        <div class="chart-placeholder">
+            <strong>Revenue Trends</strong><br>
+            {% for revenue in charts.revenue_trends %}
+            {{ revenue.month }}: Ksh {{ "%.2f"|format(revenue.revenue or 0) }}<br>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Detailed Reports Section -->
+    <div class="section keep-together">
+        <div class="section-title">Detailed Reports</div>
+        
+        <!-- Recent Bookings Table -->
+        <div class="tables-container">
+            <h3 style="color: #2c3e50; margin-bottom: 10px; font-size: 12px;">Recent Bookings</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Reference</th>
+                        <th>Student Name</th>
+                        <th>Room</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in charts.recent_bookings %}
+                    <tr>
+                        <td>{{ booking.booking_reference_number[:8] }}...</td>
+                        <td>{{ booking.user_first_name }} {{ booking.user_last_name }}</td>
+                        <td>{{ booking.room_number }}</td>
+                        <td>{{ booking.booking_date.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <span class="status-badge status-{{ booking.booking_status.lower() }}">
+                                {{ booking.booking_status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Two Column Layout for Additional Data -->
+        <div class="two-column">
+            <!-- Booking Status Distribution -->
+            <div>
+                <h3 style="color: #2c3e50; margin-bottom: 10px; font-size: 12px;">Booking Status Distribution</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Count</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for status in charts.booking_statuses %}
+                        <tr>
+                            <td>{{ status.booking_status }}</td>
+                            <td>{{ status.status_count }}</td>
+                            <td>
+                                {% if reports.total_bookings and reports.total_bookings > 0 %}
+                                    {{ (status.status_count / reports.total_bookings * 100)|round(1) }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Payment Methods -->
+            <div>
+                <h3 style="color: #2c3e50; margin-bottom: 10px; font-size: 12px;">Payment Methods</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Count</th>
+                            <th>Total Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for method in charts.payment_methods %}
+                        <tr>
+                            <td>{{ method.payment_method }}</td>
+                            <td>{{ method.payment_count }}</td>
+                            <td>Ksh {{ "%.2f"|format(method.total_amount or 0) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Hostel Performance -->
+        <div class="tables-container">
+            <h3 style="color: #2c3e50; margin-bottom: 10px; font-size: 12px;">Hostel Performance</h3>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Hostel Name</th>
+                        <th>Total Bookings</th>
+                        <th>Total Rooms</th>
+                        <th>Revenue</th>
+                        <th>Occupancy Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hostel in charts.hostel_stats %}
+                    <tr>
+                        <td>{{ hostel.hostel_name }}</td>
+                        <td>{{ hostel.booking_count }}</td>
+                        <td>{{ hostel.total_rooms }}</td>
+                        <td>Ksh {{ "%.2f"|format(hostel.total_revenue or 0) }}</td>
+                        <td>
+                            {% if hostel.total_rooms and hostel.total_rooms > 0 %}
+                                {{ (hostel.booking_count / hostel.total_rooms * 100)|round|int }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>This report was automatically generated by the Nyumbani Hostels System on {{ generated_at.strftime('%Y-%m-%d') }}</p>
+        <p>For questions or support, please contact the system administrator.</p>
+        <p>Confidential - For internal use only</p>
+    </div>
+</body>
+</html>

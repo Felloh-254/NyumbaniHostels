@@ -1,0 +1,796 @@
+{% extends "/admin/admin_base.html" %}
+{% block title %} - Reports & Analytics{% endblock %}
+{% block content %}
+    <style>
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(120, 119, 198, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #3acf70;
+            transform: translateY(-2px);
+        }
+
+        /* Reports specific styles */
+        .reports-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(20, 20, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-description {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        
+        .chart-container {
+            height: 300px;
+            margin-top: 15px;
+            position: relative;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1200px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-card {
+            background: rgba(20, 20, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+         .chart-placeholder {
+            height: 300px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-light);
+            margin-top: 15px;
+        }
+
+        .report-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .report-section {
+            background: rgba(20, 20, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 25px;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+
+        .metric-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .metric-item:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: var(--text-light);
+        }
+
+        .metric-value {
+            font-weight: 600;
+        }
+
+        .revenue-amount {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        /* Date range picker */
+        .date-range {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .date-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        /* Print styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            
+            .stat-card {
+                break-inside: avoid;
+                border: 1px solid #ccc !important;
+                background: white !important;
+                color: black !important;
+            }
+            
+            .main-content {
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .reports-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .export-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .report-sections {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header and export buttons remain the same -->
+        <div class="header">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+            <div class="page-title">
+                <h1>Reports & Analytics</h1>
+                <p>Comprehensive overview of hostel management system performance</p>
+            </div>
+            <div class="header-actions">
+                <div class="search-box">
+                    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <input type="text" placeholder="Search reports...">
+                </div>
+                <div class="notification-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="notification-badge">3</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reports Header with Export Options -->
+        <div class="reports-header">
+            <div>
+                <h2>System Overview</h2>
+                <p style="color: var(--text-light); margin-top: 5px;">Real-time analytics and performance metrics</p>
+            </div>
+            <div class="export-actions">
+                <a href="{{ url_for('admin.export_reports_pdf') }}" class="btn btn-primary no-print">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M10 9H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Export PDF
+                </a>
+                <a href="{{ url_for('admin.export_reports_csv') }}" class="btn btn-success no-print">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M10 9H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Export CSV
+                </a>
+            </div>
+        </div>
+
+        <!-- Key Statistics Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <h3 class="stat-title">Total Revenue</h3>
+                </div>
+                <div class="stat-value">Ksh. {{ "%.2f"|format(reports.total_revenue or 0) }}</div>
+                <p class="stat-description">All-time successful payments</p>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <h3 class="stat-title">Active Bookings</h3>
+                </div>
+                <div class="stat-value">{{ reports.confirmed_bookings or 0 }}</div>
+                <p class="stat-description">
+                    {% if reports.total_rooms and reports.total_rooms > 0 %}
+                        {{ ((reports.confirmed_bookings or 0) / reports.total_rooms * 100)|round|int }}%
+                    {% else %}
+                        0%
+                    {% endif %}
+                    occupancy rate
+                </p>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <h3 class="stat-title">Monthly Revenue</h3>
+                </div>
+                <div class="stat-value">Ksh. {{ "%.2f"|format(reports.monthly_revenue or 0) }}</div>
+                <p class="stat-description">Last 30 days successful payments</p>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <h3 class="stat-title">System Users</h3>
+                </div>
+                <div class="stat-value">{{ reports.total_users or 0 }}</div>
+                <p class="stat-description">Total registered students</p>
+            </div>
+        </div>
+
+        <!-- Interactive Charts Section -->
+        <div class="charts-grid">
+            <!-- Booking Trends Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Monthly Booking Trends</h3>
+                    <select class="filter-select no-print" onchange="updateChartPeriod(this.value)" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 5px 10px; border-radius: 6px; color: var(--text);">
+                        <option value="6">Last 6 Months</option>
+                        <option value="12">Last Year</option>
+                    </select>
+                </div>
+                <div class="chart-container">
+                    <canvas id="bookingTrendsChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Revenue Trends Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Revenue Trends</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="revenueTrendsChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Booking Status Distribution -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Booking Status Distribution</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="bookingStatusChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Payment Methods -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Payment Methods</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="paymentMethodsChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Hostel Distribution -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Hostel Distribution</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="hostelDistributionChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- User Gender Distribution -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">User Gender Distribution</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="genderDistributionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Report Sections (same as before) -->
+        <div class="report-sections">
+            <!-- ... your existing report sections ... -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Chart instances
+        let bookingTrendsChart, revenueTrendsChart, bookingStatusChart, paymentMethodsChart, hostelDistributionChart, genderDistributionChart;
+
+        // Initialize all charts
+        function initializeCharts() {
+            // Booking Trends Chart
+            const bookingCtx = document.getElementById('bookingTrendsChart').getContext('2d');
+            bookingTrendsChart = new Chart(bookingCtx, {
+                type: 'line',
+                data: {
+                    labels: {{ charts.booking_trends | map(attribute='month') | list | tojson }},
+                    datasets: [{
+                        label: 'Bookings',
+                        data: {{ charts.booking_trends | map(attribute='booking_count') | list | tojson }},
+                        borderColor: 'rgb(99, 102, 241)',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Revenue Trends Chart
+            const revenueCtx = document.getElementById('revenueTrendsChart').getContext('2d');
+            revenueTrendsChart = new Chart(revenueCtx, {
+                type: 'bar',
+                data: {
+                    labels: {{ charts.revenue_trends | map(attribute='month') | list | tojson }},
+                    datasets: [{
+                        label: 'Revenue (Ksh)',
+                        data: {{ charts.revenue_trends | map(attribute='revenue') | list | tojson }},
+                        backgroundColor: 'rgba(34, 197, 94, 0.8)',
+                        borderColor: 'rgb(34, 197, 94)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                callback: function(value) {
+                                    return 'Ksh ' + value;
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Booking Status Distribution
+            const statusCtx = document.getElementById('bookingStatusChart').getContext('2d');
+            bookingStatusChart = new Chart(statusCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: {{ charts.booking_statuses | map(attribute='booking_status') | list | tojson }},
+                    datasets: [{
+                        data: {{ charts.booking_statuses | map(attribute='status_count') | list | tojson }},
+                        backgroundColor: [
+                            'rgba(34, 197, 94, 0.8)',  // Confirmed - Green
+                            'rgba(249, 115, 22, 0.8)', // Pending - Orange
+                            'rgba(239, 68, 68, 0.8)'   // Cancelled - Red
+                        ],
+                        borderColor: [
+                            'rgb(34, 197, 94)',
+                            'rgb(249, 115, 22)',
+                            'rgb(239, 68, 68)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Payment Methods Chart
+            const paymentCtx = document.getElementById('paymentMethodsChart').getContext('2d');
+            paymentMethodsChart = new Chart(paymentCtx, {
+                type: 'pie',
+                data: {
+                    labels: {{ charts.payment_methods | map(attribute='payment_method') | list | tojson }},
+                    datasets: [{
+                        data: {{ charts.payment_methods | map(attribute='payment_count') | list | tojson }},
+                        backgroundColor: [
+                            'rgba(99, 102, 241, 0.8)',  // Mpesa - Purple
+                            'rgba(16, 185, 129, 0.8)'   // Cash - Green
+                        ],
+                        borderColor: [
+                            'rgb(99, 102, 241)',
+                            'rgb(16, 185, 129)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Hostel Distribution Chart
+            const hostelCtx = document.getElementById('hostelDistributionChart').getContext('2d');
+            hostelDistributionChart = new Chart(hostelCtx, {
+                type: 'bar',
+                data: {
+                    labels: {{ charts.hostel_stats | map(attribute='hostel_name') | list | tojson }},
+                    datasets: [{
+                        label: 'Bookings',
+                        data: {{ charts.hostel_stats | map(attribute='booking_count') | list | tojson }},
+                        backgroundColor: 'rgba(139, 92, 246, 0.8)',
+                        borderColor: 'rgb(139, 92, 246)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Gender Distribution Chart
+            const genderCtx = document.getElementById('genderDistributionChart').getContext('2d');
+            genderDistributionChart = new Chart(genderCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Male', 'Female'],
+                    datasets: [{
+                        data: [
+                            {{ reports.male_users or 0 }},
+                            {{ reports.female_users or 0 }}
+                        ],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',   // Male - Blue
+                            'rgba(236, 72, 153, 0.8)'    // Female - Pink
+                        ],
+                        borderColor: [
+                            'rgb(59, 130, 246)',
+                            'rgb(236, 72, 153)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                padding: 20
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update chart period (placeholder for future implementation)
+        function updateChartPeriod(months) {
+            // This would typically make an AJAX call to fetch new data
+            console.log('Updating chart period to:', months + ' months');
+            // For now, we'll just show an alert
+            alert('This would update the charts to show data for the last ' + months + ' months');
+        }
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCharts();
+            // Your existing setupEventListeners function
+            setupEventListeners();
+        });
+
+        // Your existing JavaScript functions
+        function setupEventListeners() {
+            // Mobile menu toggle and other existing functionality
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('sidebar');
+
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 1024 && 
+                    !sidebar.contains(event.target) && 
+                    !mobileMenuToggle.contains(event.target) &&
+                    sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                }
+            });
+
+            // Set default date range
+            const endDate = new Date();
+            const startDate = new Date();
+            startDate.setDate(startDate.getDate() - 30);
+            
+            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+        }
+
+        function generateCustomReport() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates');
+                return;
+            }
+            
+            alert(`Generating report for period: ${startDate} to ${endDate}`);
+        }
+    </script>
+{% endblock %}

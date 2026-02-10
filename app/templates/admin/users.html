@@ -1,0 +1,1140 @@
+{% extends "/admin/admin_base.html" %}
+{% block title %}- Students Management {% endblock %}
+{% block content %}
+    <style>
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(120, 119, 198, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Users Table */
+        .table-container {
+            background: rgba(20, 20, 30, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        td {
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: rgba(74, 222, 128, 0.2);
+            color: var(--success);
+        }
+
+        .status-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: var(--warning);
+        }
+
+        .status-inactive {
+            background: rgba(255, 107, 157, 0.2);
+            color: var(--danger);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .pagination-info {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .pagination-btn {
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .pagination-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(20, 20, 30, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(120, 119, 198, 0.2);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .search-box input {
+                width: 180px;
+            }
+            
+            .filters-actions {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .filter-group {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+            
+            .users-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .users-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .pagination {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+            <div class="page-title">
+                <h1>Student Management</h1>
+                <p>Manage all student accounts and information</p>
+            </div>
+            <div class="header-actions">
+                <div class="search-box">
+                    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <input type="text" placeholder="Search students...">
+                </div>
+                <div class="notification-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="notification-badge">3</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Stats -->
+        <div class="users-stats">
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="stat-value">{{ stats['total_students'] }}</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 3C13.1819 3 14.3522 3.23279 15.4442 3.68508C16.5361 4.13738 17.5282 4.80031 18.364 5.63604C19.1997 6.47177 19.8626 7.46392 20.3149 8.55585C20.7672 9.64778 21 10.8181 21 12C21 13.1819 20.7672 14.3522 20.3149 15.4442C19.8626 16.5361 19.1997 17.5282 18.364 18.364C17.5282 19.1997 16.5361 19.8626 15.4442 20.3149C14.3522 20.7672 13.1819 21 12 21C10.8181 21 9.64778 20.7672 8.55585 20.3149C7.46392 19.8626 6.47177 19.1997 5.63604 18.364C4.80031 17.5282 4.13738 16.5361 3.68508 15.4442C3.23279 14.3522 3 13.1819 3 12C3 9.61305 3.94821 7.32387 5.63604 5.63604C7.32387 3.94821 9.61305 3 12 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="stat-value">423</div>
+                <div class="stat-label">Active Students</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 8V12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 3C13.1819 3 14.3522 3.23279 15.4442 3.68508C16.5361 4.13738 17.5282 4.80031 18.364 5.63604C19.1997 6.47177 19.8626 7.46392 20.3149 8.55585C20.7672 9.64778 21 10.8181 21 12C21 13.1819 20.7672 14.3522 20.3149 15.4442C19.8626 16.5361 19.1997 17.5282 18.364 18.364C17.5282 19.1997 16.5361 19.8626 15.4442 20.3149C14.3522 20.7672 13.1819 21 12 21C10.8181 21 9.64778 20.7672 8.55585 20.3149C7.46392 19.8626 6.47177 19.1997 5.63604 18.364C4.80031 17.5282 4.13738 16.5361 3.68508 15.4442C3.23279 14.3522 3 13.1819 3 12C3 9.61305 3.94821 7.32387 5.63604 5.63604C7.32387 3.94821 9.61305 3 12 3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="stat-value">42</div>
+                <div class="stat-label">Pending Approval</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-header">
+                    <div class="stat-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 9V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 17H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="stat-value">22</div>
+                <div class="stat-label">Inactive Accounts</div>
+            </div>
+        </div>
+
+        <!-- Filters and Actions -->
+        <div class="filters-actions">
+            <div class="filter-group">
+                <select class="filter-select">
+                    <option>All Status</option>
+                    <option>Active</option>
+                    <option>Pending</option>
+                    <option>Inactive</option>
+                </select>
+                <select class="filter-select">
+                    <option>All Rooms</option>
+                    <option>Single Room</option>
+                    <option>Shared Room</option>
+                    <option>Premium Suite</option>
+                </select>
+                <select class="filter-select">
+                    <option>Sort by: Newest</option>
+                    <option>Sort by: Oldest</option>
+                    <option>Sort by: Name A-Z</option>
+                    <option>Sort by: Name Z-A</option>
+                </select>
+            </div>
+            <div>
+                <button class="btn btn-primary" id="addUserBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Add Student
+                </button>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Student ID</th>
+                        <th>Contact</th>
+                        <th>Gender</th>
+                        <th>Emergency No.</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">{{student.user_first_name[0]}}{{student.user_last_name[0]}}</div>
+                                <div>
+                                    <div>{{student.user_first_name}} {{student.user_last_name}}</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-light);">{{student.user_email}}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{student.profile_student_id}}</td>
+                        <td>{{student.user_phone_number}}</td>
+                        <td>{{student.user_gender}}</td>
+                        <td>{{student.profile_emergency_contact}}</td>
+                        <td><span class="status status-active">Active</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="action-btn view-user" data-id="1">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 12C1 12 5 4 12 4C19 4 23 12 23 12C23 12 19 20 12 20C5 20 1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                                <button class="action-btn edit-user" data-id="1">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                                <button class="action-btn delete-user" data-id="1">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <div class="pagination-info">Showing 1-4 of {{ stats['total_students'] }} students</div>
+                <div class="pagination-controls">
+                    <button class="pagination-btn">Previous</button>
+                    <button class="pagination-btn active">1</button>
+                    <button class="pagination-btn">2</button>
+                    <button class="pagination-btn">3</button>
+                    <button class="pagination-btn">...</button>
+                    <button class="pagination-btn">24</button>
+                    <button class="pagination-btn">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Student Modal -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Student</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            
+            <!-- Progress Indicators -->
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="step-indicators">
+                <div class="step-indicator active" data-step="1">1</div>
+                <div class="step-indicator" data-step="2">2</div>
+                <div class="step-indicator" data-step="3">3</div>
+                <div class="step-indicator" data-step="4">4</div>
+            </div>
+
+            <form id="addUserForm">
+                <!-- Step 1: Personal Information -->
+                <div class="form-step active" data-step="1">
+                    <h3 style="margin-bottom: 20px; color: var(--text);">Personal Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="firstName">First Name *</label>
+                        <input type="text" id="firstName" name="firstName" required>
+                        <span class="error-message" id="firstNameError"></span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="lastName">Last Name *</label>
+                        <input type="text" id="lastName" name="lastName" required>
+                        <span class="error-message" id="lastNameError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender *</label>
+                        <select id="gender" name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                        <span class="error-message" id="genderError"></span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline close-modal">Cancel</button>
+                        <button type="button" class="btn btn-primary next-step" data-next="2">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Contact Information -->
+                <div class="form-step" data-step="2">
+                    <h3 style="margin-bottom: 20px; color: var(--text);">Contact Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" name="email" required>
+                        <span class="error-message" id="emailError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" placeholder="+254700000000">
+                        <span class="error-message" id="phoneError"></span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline prev-step" data-prev="1">Previous</button>
+                        <button type="button" class="btn btn-primary next-step" data-next="3">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 3: Student Information -->
+                <div class="form-step" data-step="3">
+                    <h3 style="margin-bottom: 20px; color: var(--text);">Student Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="studentId">Student ID *</label>
+                        <input type="text" id="studentId" name="studentId" required>
+                        <span class="error-message" id="studentIdError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="emergencyContact">Emergency Contact</label>
+                        <input type="tel" id="emergencyContact" name="emergencyContact" placeholder="+254700000000">
+                        <span class="error-message" id="emergencyContactError"></span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline prev-step" data-prev="2">Previous</button>
+                        <button type="button" class="btn btn-primary next-step" data-next="4">Next</button>
+                    </div>
+                </div>
+
+                <!-- Step 4: Security -->
+                <div class="form-step" data-step="4">
+                    <h3 style="margin-bottom: 20px; color: var(--text);">Security</h3>
+                    
+                    <div class="form-group">
+                        <label for="password">Password *</label>
+                        <input type="password" id="password" name="password" required>
+                        <span class="error-message" id="passwordError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password *</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required>
+                        <span class="error-message" id="confirmPasswordError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="status">Account Status *</label>
+                        <select id="status" name="status" required>
+                            <option value="active">Active</option>
+                            <option value="pending">Pending</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline prev-step" data-prev="3">Previous</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <span id="submitText">Add Student</span>
+                            <div class="spinner" style="display: none;"></div>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script>
+        class StudentManager {
+            constructor() {
+                this.currentStep = 1;
+                this.initializeElements();
+                this.bindEvents();
+                this.initializeForm();
+            }
+
+            initializeElements() {
+                // Modal elements
+                this.addUserModal = document.getElementById('addUserModal');
+                this.addUserBtn = document.getElementById('addUserBtn');
+                this.closeModalBtns = document.querySelectorAll('.close-modal');
+                this.addUserForm = document.getElementById('addUserForm');
+                this.loadingOverlay = document.getElementById('loadingOverlay');
+                this.progressFill = document.getElementById('progressFill');
+                this.stepIndicators = document.querySelectorAll('.step-indicator');
+                
+                // Message elements
+                this.successMessage = document.getElementById('successMessage');
+                this.errorMessage = document.getElementById('errorMessage');
+                
+                // Table elements
+                this.studentsTableBody = document.getElementById('studentsTableBody');
+                this.searchInput = document.getElementById('searchInput');
+                this.statusFilter = document.getElementById('statusFilter');
+                this.sortFilter = document.getElementById('sortFilter');
+            }
+
+            bindEvents() {
+                // Modal events
+                this.addUserBtn?.addEventListener('click', () => this.openModal());
+                this.closeModalBtns.forEach(btn => {
+                    btn.addEventListener('click', () => this.closeModal());
+                });
+
+                // Form navigation
+                document.querySelectorAll('.next-step').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const nextStep = parseInt(e.target.dataset.next);
+                        this.nextStep(nextStep);
+                    });
+                });
+
+                document.querySelectorAll('.prev-step').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const prevStep = parseInt(e.target.dataset.prev);
+                        this.prevStep(prevStep);
+                    });
+                });
+
+                // Form submission
+                this.addUserForm?.addEventListener('submit', (e) => this.submitForm(e));
+
+                // Delete buttons
+                document.addEventListener('click', (e) => {
+                    if (e.target.closest('.delete-user')) {
+                        const btn = e.target.closest('.delete-user');
+                        const studentId = btn.dataset.id;
+                        const studentName = btn.dataset.name;
+                        this.deleteStudent(studentId, studentName);
+                    }
+                });
+
+                // Search and filter events
+                this.searchInput?.addEventListener('input', (e) => this.searchStudents(e.target.value));
+                this.statusFilter?.addEventListener('change', (e) => this.filterStudents());
+                this.sortFilter?.addEventListener('change', (e) => this.sortStudents());
+
+                // Close modal on outside click
+                document.addEventListener('click', (e) => {
+                    if (e.target === this.addUserModal) {
+                        this.closeModal();
+                    }
+                });
+
+                // Password validation
+                const passwordInput = document.getElementById('password');
+                if (passwordInput) {
+                    passwordInput.addEventListener('input', () => this.validatePassword());
+                }
+            }
+
+            initializeForm() {
+                this.currentStep = 1;
+                this.showStep(1);
+                if (this.addUserForm) {
+                    this.addUserForm.reset();
+                }
+                this.clearErrorMessages();
+            }
+
+            showStep(step) {
+                // Hide all steps
+                document.querySelectorAll('.form-step').forEach(stepEl => {
+                    stepEl.classList.remove('active');
+                });
+                
+                // Show current step
+                const currentStepEl = document.querySelector(`.form-step[data-step="${step}"]`);
+                if (currentStepEl) {
+                    currentStepEl.classList.add('active');
+                }
+                
+                // Update progress bar
+                const progressPercentage = ((step - 1) / 3) * 100;
+                this.progressFill.style.width = `${progressPercentage}%`;
+                
+                // Update step indicators
+                this.stepIndicators.forEach(indicator => {
+                    const indicatorStep = parseInt(indicator.getAttribute('data-step'));
+                    if (indicatorStep === step) {
+                        indicator.classList.add('active');
+                        indicator.classList.remove('inactive');
+                    } else if (indicatorStep < step) {
+                        indicator.classList.remove('active');
+                        indicator.classList.remove('inactive');
+                    } else {
+                        indicator.classList.remove('active');
+                        indicator.classList.add('inactive');
+                    }
+                });
+                
+                this.currentStep = step;
+            }
+
+            nextStep(nextStep) {
+                if (this.validateCurrentStep()) {
+                    this.showStep(nextStep);
+                }
+            }
+
+            prevStep(prevStep) {
+                this.showStep(prevStep);
+            }
+
+            validateCurrentStep() {
+                let isValid = true;
+                this.clearStepErrors(this.currentStep);
+
+                switch(this.currentStep) {
+                    case 1:
+                        isValid = this.validatePersonalInfo();
+                        break;
+                    case 2:
+                        isValid = this.validateContactInfo();
+                        break;
+                    case 3:
+                        isValid = this.validateStudentInfo();
+                        break;
+                }
+
+                return isValid;
+            }
+
+            validatePersonalInfo() {
+                let isValid = true;
+                const firstName = document.getElementById('firstName').value.trim();
+                const lastName = document.getElementById('lastName').value.trim();
+                const gender = document.getElementById('gender').value;
+
+                if (!firstName) {
+                    this.showError('firstNameError', 'First name is required');
+                    isValid = false;
+                }
+
+                if (!lastName) {
+                    this.showError('lastNameError', 'Last name is required');
+                    isValid = false;
+                }
+
+                if (!gender) {
+                    this.showError('genderError', 'Gender is required');
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            validateContactInfo() {
+                let isValid = true;
+                const email = document.getElementById('email').value.trim();
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                if (!email) {
+                    this.showError('emailError', 'Email is required');
+                    isValid = false;
+                } else if (!emailRegex.test(email)) {
+                    this.showError('emailError', 'Please enter a valid email address');
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            validateStudentInfo() {
+                let isValid = true;
+                const studentId = document.getElementById('studentId').value.trim();
+
+                if (!studentId) {
+                    this.showError('studentIdError', 'Student ID is required');
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            validatePassword() {
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                let isValid = true;
+
+                this.clearErrorMessages();
+
+                if (!password) {
+                    this.showError('passwordError', 'Password is required');
+                    isValid = false;
+                } else if (password.length < 8) {
+                    this.showError('passwordError', 'Password must be at least 8 characters');
+                    isValid = false;
+                }
+
+                if (password !== confirmPassword) {
+                    this.showError('confirmPasswordError', 'Passwords do not match');
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            async submitForm(e) {
+                e.preventDefault();
+
+                // Validate all steps
+                if (!this.validateCurrentStep() || !this.validatePassword()) {
+                    return;
+                }
+
+                // Collect form data
+                const formData = {
+                    firstName: document.getElementById('firstName').value.trim(),
+                    lastName: document.getElementById('lastName').value.trim(),
+                    gender: document.getElementById('gender').value,
+                    email: document.getElementById('email').value.trim(),
+                    phone: document.getElementById('phone').value.trim(),
+                    studentId: document.getElementById('studentId').value.trim(),
+                    emergencyContact: document.getElementById('emergencyContact').value.trim(),
+                    password: document.getElementById('password').value,
+                    status: document.getElementById('status').value
+                };
+
+                // Show loading state
+                this.showLoading(true);
+
+                try {
+                    const response = await fetch('/admin/add_student', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.showSuccess('Student added successfully!');
+                        this.closeModal();
+                        // Reload the page to show new student
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        this.showErrorAlert(result.message || 'Failed to add student');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showErrorAlert('An error occurred. Please try again.');
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            async deleteStudent(studentId, studentName) {
+                if (!confirm(`Are you sure you want to delete ${studentName}? This action cannot be undone.`)) {
+                    return;
+                }
+
+                this.showLoading(true);
+
+                try {
+                    const response = await fetch(`/admin/delete_student/${studentId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.showSuccess('Student deleted successfully!');
+                        // Remove the row from the table
+                        const row = document.querySelector(`tr[data-student-id="${studentId}"]`);
+                        if (row) {
+                            row.remove();
+                            // Update stats display
+                            this.updateStatsDisplay();
+                        }
+                    } else {
+                        this.showErrorAlert(result.message || 'Failed to delete student');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showErrorAlert('An error occurred. Please try again.');
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            searchStudents(query) {
+                const rows = this.studentsTableBody.querySelectorAll('tr');
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(query.toLowerCase()) ? '' : 'none';
+                });
+            }
+
+            filterStudents() {
+                const status = this.statusFilter.value;
+                const rows = this.studentsTableBody.querySelectorAll('tr');
+                
+                rows.forEach(row => {
+                    if (status === 'all') {
+                        row.style.display = '';
+                        return;
+                    }
+                    
+                    const statusElement = row.querySelector('.status');
+                    const rowStatus = statusElement?.className.includes(status) ? status : '';
+                    row.style.display = rowStatus === status ? '' : 'none';
+                });
+            }
+
+            sortStudents() {
+                // Implement sorting logic here
+                // This is a simplified version - you might want to implement actual sorting
+                console.log('Sorting by:', this.sortFilter.value);
+            }
+
+            updateStatsDisplay() {
+                // Update the stats display after changes
+                // You might want to make an API call to get updated stats
+                const activeStudents = document.querySelectorAll('.status-active').length;
+                const totalStudents = this.studentsTableBody.querySelectorAll('tr').length;
+                
+                // Update display elements if they exist
+                const statCards = document.querySelectorAll('.stat-value');
+                if (statCards.length >= 2) {
+                    statCards[0].textContent = totalStudents;
+                    statCards[1].textContent = activeStudents;
+                }
+            }
+
+            openModal() {
+                this.initializeForm();
+                this.addUserModal.classList.add('active');
+            }
+
+            closeModal() {
+                this.addUserModal.classList.remove('active');
+                this.initializeForm();
+            }
+
+            showLoading(show) {
+                if (show) {
+                    this.loadingOverlay.style.display = 'flex';
+                    const submitBtn = document.getElementById('submitBtn');
+                    if (submitBtn) {
+                        const spinner = submitBtn.querySelector('.spinner');
+                        const text = submitBtn.querySelector('#submitText');
+                        if (spinner) spinner.style.display = 'inline-block';
+                        if (text) text.textContent = 'Adding...';
+                    }
+                } else {
+                    this.loadingOverlay.style.display = 'none';
+                    const submitBtn = document.getElementById('submitBtn');
+                    if (submitBtn) {
+                        const spinner = submitBtn.querySelector('.spinner');
+                        const text = submitBtn.querySelector('#submitText');
+                        if (spinner) spinner.style.display = 'none';
+                        if (text) text.textContent = 'Add Student';
+                    }
+                }
+            }
+
+            showError(elementId, message) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = message;
+                    element.style.display = 'block';
+                }
+            }
+
+            clearStepErrors(step) {
+                const errorElements = document.querySelectorAll(`.form-step[data-step="${step}"] .error-message`);
+                errorElements.forEach(el => {
+                    el.textContent = '';
+                    el.style.display = 'none';
+                });
+            }
+
+            clearErrorMessages() {
+                document.querySelectorAll('.error-message').forEach(el => {
+                    el.textContent = '';
+                    el.style.display = 'none';
+                });
+            }
+
+            showSuccess(message) {
+                this.successMessage.textContent = message;
+                this.successMessage.style.display = 'block';
+                this.errorMessage.style.display = 'none';
+                
+                setTimeout(() => {
+                    this.successMessage.style.display = 'none';
+                }, 5000);
+            }
+
+            showErrorAlert(message) {
+                this.errorMessage.textContent = message;
+                this.errorMessage.style.display = 'block';
+                this.successMessage.style.display = 'none';
+                
+                setTimeout(() => {
+                    this.errorMessage.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Initialize the student manager when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            window.studentManager = new StudentManager();
+            
+            // Mobile menu toggle
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            if (mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    const sidebar = document.getElementById('sidebar');
+                    if (sidebar) {
+                        sidebar.classList.toggle('active');
+                    }
+                });
+            }
+            
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                const sidebar = document.getElementById('sidebar');
+                const mobileToggle = document.getElementById('mobileMenuToggle');
+                
+                if (window.innerWidth <= 1024 && 
+                    sidebar && 
+                    mobileToggle &&
+                    !sidebar.contains(event.target) && 
+                    !mobileToggle.contains(event.target) &&
+                    sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,967 @@
+{% extends "/admin/admin_base.html" %}
+{% block title %}- Hostel and Rooms {% endblock %}
+{% block content %}
+    <style>
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            border: none;
+            cursor: pointer;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(120, 119, 198, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-modal:hover {
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-hint {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: 5px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .search-box input {
+                width: 180px;
+            }
+            
+            .hostels-grid, .rooms-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .rooms-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+    </style>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="header">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">☰</button>
+            <div class="page-title">
+                <h1>Hostels & Rooms</h1>
+                <p>Manage all hostels and their rooms</p>
+            </div>
+            <div class="header-actions">
+                <div class="search-box">
+                    <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <input type="text" placeholder="Search hostels or rooms...">
+                </div>
+                <div class="notification-btn">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="notification-badge">3</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb" id="breadcrumb">
+            <a href="#" class="breadcrumb-hostels">Hostels</a>
+        </div>
+
+        <!-- View Toggle -->
+        <div class="view-toggle">
+            <button class="view-toggle-btn active" id="hostelsViewBtn">Hostels View</button>
+            <button class="view-toggle-btn" id="roomsViewBtn">Rooms View</button>
+        </div>
+
+        <!-- Hostels Section -->
+        <div class="hostels-section active" id="hostelsSection">
+            <div class="section-header">
+                <h2>All Hostels</h2>
+                <button class="btn btn-primary" id="addHostelBtn">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Add Hostel
+                </button>
+            </div>
+            <div class="hostels-grid" id="hostelsGrid">
+                <!-- Hostel cards will be dynamically generated -->
+            </div>
+        </div>
+
+        <!-- Rooms Section -->
+        <div class="rooms-section" id="roomsSection">
+            <div class="rooms-header">
+                <div>
+                    <h2 id="selectedHostelName">University Hall</h2>
+                    <p id="selectedHostelLocation">123 University Avenue, Campus Town</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-primary" id="addRoomBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Add Room
+                    </button>
+                    <button class="btn btn-outline" id="backToHostelsBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19 12H5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Back to Hostels
+                    </button>
+                </div>
+            </div>
+            <div class="rooms-grid" id="roomsGrid">
+                <!-- Room cards will be dynamically generated -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Hostel Modal -->
+    <div class="modal" id="addHostelModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Hostel</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="addHostelForm">
+                <div class="form-group">
+                    <label for="hostelName">Hostel Name</label>
+                    <input type="text" id="hostelName" required>
+                </div>
+                <div class="form-group">
+                    <label for="hostelLocation">Location</label>
+                    <input type="text" id="hostelLocation" required>
+                </div>
+                <div class="form-group">
+                    <label for="hostelTotalRooms">Total Rooms</label>
+                    <input type="number" id="hostelTotalRooms" min="1" required>
+                    <div class="form-hint">Estimated total number of rooms in this hostel</div>
+                </div>
+                <div class="form-group">
+                    <label for="hostelDescription">Description</label>
+                    <textarea id="hostelDescription" rows="3" placeholder="Brief description of the hostel..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline close-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Hostel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Room Modal -->
+    <div class="modal" id="addRoomModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Add New Room</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="addRoomForm">
+                <div class="form-group">
+                    <label for="roomNumber">Room Number</label>
+                    <input type="text" id="roomNumber" required>
+                </div>
+                <div class="form-group">
+                    <label for="roomType">Room Type</label>
+                    <select id="roomType" required>
+                        <option value="">Select Room Type</option>
+                        <option value="Single">Single</option>
+                        <option value="Double">Double</option>
+                        <option value="Shared">Shared</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="roomCapacity">Capacity</label>
+                    <input type="number" id="roomCapacity" min="1" max="10" required>
+                    <div class="form-hint">Maximum number of students this room can accommodate</div>
+                </div>
+                <div class="form-group">
+                    <label for="roomPrice">Price per Semester ($)</label>
+                    <input type="number" id="roomPrice" min="0" step="0.01" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline close-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Room</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Assign Room Modal -->
+    <div class="modal" id="assignRoomModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Assign Room to Student</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <form id="assignRoomForm">
+                <div class="form-group">
+                    <label for="studentSelect">Select Student</label>
+                    <select id="studentSelect" required>
+                        <option value="">Select a student</option>
+                        <!-- Students will be populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="assignRoomNumber">Room</label>
+                    <input type="text" id="assignRoomNumber" readonly>
+                    <div class="form-hint" id="assignRoomInfo"></div>
+                </div>
+                <div class="form-group">
+                    <label for="bookingDate">Booking Date</label>
+                    <input type="date" id="bookingDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="vaccateDate">Expected Vacate Date</label>
+                    <input type="date" id="vaccateDate" required>
+                    <div class="form-hint">Expected date when the student will vacate the room</div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline close-modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Assign Room</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const hostelsSection = document.getElementById('hostelsSection');
+        const roomsSection = document.getElementById('roomsSection');
+        const hostelsGrid = document.getElementById('hostelsGrid');
+        const roomsGrid = document.getElementById('roomsGrid');
+        const hostelsViewBtn = document.getElementById('hostelsViewBtn');
+        const roomsViewBtn = document.getElementById('roomsViewBtn');
+        const backToHostelsBtn = document.getElementById('backToHostelsBtn');
+        const addHostelBtn = document.getElementById('addHostelBtn');
+        const addRoomBtn = document.getElementById('addRoomBtn');
+        const breadcrumb = document.getElementById('breadcrumb');
+        const selectedHostelName = document.getElementById('selectedHostelName');
+        const selectedHostelLocation = document.getElementById('selectedHostelLocation');
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const sidebar = document.getElementById('sidebar');
+
+        // Modal Elements
+        const addHostelModal = document.getElementById('addHostelModal');
+        const addRoomModal = document.getElementById('addRoomModal');
+        const assignRoomModal = document.getElementById('assignRoomModal');
+        const addHostelForm = document.getElementById('addHostelForm');
+        const addRoomForm = document.getElementById('addRoomForm');
+        const assignRoomForm = document.getElementById('assignRoomForm');
+        const studentSelect = document.getElementById('studentSelect');
+        const assignRoomNumber = document.getElementById('assignRoomNumber');
+        const assignRoomInfo = document.getElementById('assignRoomInfo');
+
+        // Current state
+        let currentHostelId = null;
+        let currentRoomForAssignment = null;
+        let hostelsData = [];
+        let studentsData = [];
+
+        // Initialize the page
+        async function init() {
+            await loadHostels();
+            await loadStudents();
+            setupEventListeners();
+            setDefaultDates();
+        }
+
+        // Load hostels from database
+        async function loadHostels() {
+            try {
+                const response = await fetch('/admin/get_hostels');
+                const result = await response.json();
+                
+                if (result.success) {
+                    hostelsData = result.hostels;
+                    renderHostels();
+                } else {
+                    alert('Error loading hostels: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error loading hostels:', error);
+                alert('Error loading hostels data');
+            }
+        }
+
+        // Load students from database
+        async function loadStudents() {
+            try {
+                const response = await fetch('/admin/get_students');
+                const result = await response.json();
+                
+                if (result.success) {
+                    studentsData = result.students;
+                    populateStudentSelect();
+                } else {
+                    alert('Error loading students: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error loading students:', error);
+                alert('Error loading students data');
+            }
+        }
+
+        // Load rooms for a specific hostel
+        async function loadRooms(hostelId) {
+            try {
+                const response = await fetch(`/admin/get_rooms/${hostelId}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    return result.rooms;
+                } else {
+                    alert('Error loading rooms: ' + result.message);
+                    return [];
+                }
+            } catch (error) {
+                console.error('Error loading rooms:', error);
+                alert('Error loading rooms data');
+                return [];
+            }
+        }
+
+        // Set default dates for forms
+        function setDefaultDates() {
+            const today = new Date().toISOString().split('T')[0];
+            const nextYear = new Date();
+            nextYear.setFullYear(nextYear.getFullYear() + 1);
+            const nextYearDate = nextYear.toISOString().split('T')[0];
+            
+            document.getElementById('bookingDate').value = today;
+            document.getElementById('vaccateDate').value = nextYearDate;
+        }
+
+        // Populate student select dropdown
+        function populateStudentSelect() {
+            studentSelect.innerHTML = '<option value="">Select a student</option>';
+            studentsData.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.user_id;
+                option.textContent = `${student.user_first_name} ${student.user_last_name} (${student.profile_student_id}) - ${student.user_email}`;
+                studentSelect.appendChild(option);
+            });
+        }
+
+        // Render hostels grid
+        function renderHostels() {
+            hostelsGrid.innerHTML = '';
+            
+            if (hostelsData.length === 0) {
+                hostelsGrid.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 40px;">No hostels found.</p>';
+                return;
+            }
+            
+            hostelsData.forEach(hostel => {
+                const occupancyRate = Math.round((hostel.occupied_rooms / hostel.total_rooms) * 100);
+                
+                const hostelCard = document.createElement('div');
+                hostelCard.className = 'hostel-card';
+                hostelCard.setAttribute('data-hostel-id', hostel.hostel_id);
+                
+                // Create image HTML - handle both external URLs and local paths
+                let imageHTML = '';
+                if (hostel.hostel_image) {
+                    if (hostel.hostel_image.startsWith('http')) {
+                        // External URL
+                        imageHTML = `<img src="${hostel.hostel_image}" alt="${hostel.hostel_name}" class="hostel-img">`;
+                    } else {
+                        // Local path - use url_for if in Flask template, or direct path if static
+                        imageHTML = `<img src="/static/${hostel.hostel_image}" alt="${hostel.hostel_name}" class="hostel-img">`;
+                    }
+                } else {
+                    // Fallback placeholder
+                    imageHTML = `
+                        <div class="hostel-image-placeholder">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    `;
+                }
+                
+                hostelCard.innerHTML = `
+                    <div class="hostel-image">
+                        ${imageHTML}
+                        <div class="hostel-status ${hostel.status === 'available' ? 'status-available' : 'status-full'}">
+                            ${hostel.status === 'available' ? 'Available' : 'Full'}
+                        </div>
+                        <div class="occupancy-rate">
+                            ${occupancyRate}% Occupied
+                        </div>
+                    </div>
+                    <div class="hostel-content">
+                        <h3 class="hostel-name">${hostel.hostel_name}</h3>
+                        <div class="hostel-location">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 10C21 17 12 23 12 23C12 23 3 17 3 10C3 7.61305 3.94821 5.32387 5.63604 3.63604C7.32387 1.94821 9.61305 1 12 1C14.3869 1 16.6761 1.94821 18.364 3.63604C20.0518 5.32387 21 7.61305 21 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            ${hostel.hostel_location}
+                        </div>
+                        <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 15px; line-height: 1.4;">${hostel.hostel_description || 'No description available'}</p>
+                        <div class="hostel-stats">
+                            <div class="stat">
+                                <div class="stat-value">${hostel.total_rooms}</div>
+                                <div class="stat-label">Total Rooms</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">${hostel.occupied_rooms}</div>
+                                <div class="stat-label">Occupied</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-value">${hostel.available_rooms}</div>
+                                <div class="stat-label">Available</div>
+                            </div>
+                        </div>
+                        <div class="hostel-actions">
+                            <button class="btn btn-primary view-rooms-btn" onclick="viewHostelRooms(${hostel.hostel_id})">View Rooms</button>
+                            <button class="btn btn-outline edit-hostel-btn" onclick="editHostel(${hostel.hostel_id})">Edit</button>
+                        </div>
+                    </div>
+                `;
+                
+                hostelsGrid.appendChild(hostelCard);
+            });
+        }
+
+        // Render rooms for a specific hostel
+        async function renderRooms(hostelId) {
+            roomsGrid.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 20px;">Loading rooms...</p>';
+            
+            const rooms = await loadRooms(hostelId);
+            
+            roomsGrid.innerHTML = '';
+            
+            if (rooms.length === 0) {
+                roomsGrid.innerHTML = '<p style="text-align: center; color: var(--text-light); padding: 40px;">No rooms available for this hostel.</p>';
+                return;
+            }
+            
+            rooms.forEach(room => {
+                const roomCard = document.createElement('div');
+                roomCard.className = 'room-card';
+                
+                roomCard.innerHTML = `
+                    <div class="room-image">
+                        Room ${room.room_number} Image
+                        <div class="room-type">${room.room_type}</div>
+                    </div>
+                    <div class="room-content">
+                        <h3 class="room-number">Room ${room.room_number}</h3>
+                        <div class="room-details">
+                            <span>Capacity: ${room.room_capacity}</span>
+                            <span class="room-status ${room.status === 'available' ? 'status-available' : 'status-full'}">
+                                ${room.status === 'available' ? 'Available' : 'Occupied'}
+                            </span>
+                        </div>
+                        <div class="room-features">
+                            ${room.features.map(feature => `<span class="feature-tag">${feature}</span>`).join('')}
+                        </div>
+                        <div class="room-price">$${room.room_price_per_sem}/semester</div>
+                        <div class="room-actions">
+                            <button class="btn ${room.status === 'available' ? 'btn-primary assign-room-btn' : 'btn-outline'}" 
+                                    ${room.status === 'occupied' ? 'disabled' : ''}
+                                    data-room-id="${room.room_id}" 
+                                    data-room-number="${room.room_number}"
+                                    data-room-type="${room.room_type}"
+                                    data-room-price="${room.room_price_per_sem}">
+                                ${room.status === 'available' ? 'Assign Student' : 'Occupied'}
+                            </button>
+                            <button class="btn btn-outline room-details-btn">Details</button>
+                        </div>
+                    </div>
+                `;
+                
+                roomsGrid.appendChild(roomCard);
+            });
+        }
+
+        // Switch to rooms view for a specific hostel
+        async function showRoomsView(hostelId) {
+            const hostel = hostelsData.find(h => h.hostel_id === hostelId);
+            if (!hostel) return;
+            
+            currentHostelId = hostelId;
+            selectedHostelName.textContent = hostel.hostel_name;
+            selectedHostelLocation.textContent = hostel.hostel_location;
+            
+            // Update breadcrumb
+            breadcrumb.innerHTML = `
+                <a href="#" class="breadcrumb-hostels">Hostels</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>${hostel.hostel_name}</span>
+            `;
+            
+            // Switch views
+            hostelsSection.classList.remove('active');
+            roomsSection.classList.add('active');
+            hostelsViewBtn.classList.remove('active');
+            roomsViewBtn.classList.add('active');
+            
+            // Render rooms
+            await renderRooms(hostelId);
+        }
+
+        // Switch back to hostels view
+        function showHostelsView() {
+            currentHostelId = null;
+            
+            // Update breadcrumb
+            breadcrumb.innerHTML = `<a href="#" class="breadcrumb-hostels">Hostels</a>`;
+            
+            // Switch views
+            roomsSection.classList.remove('active');
+            hostelsSection.classList.add('active');
+            roomsViewBtn.classList.remove('active');
+            hostelsViewBtn.classList.add('active');
+        }
+
+        // Show modal function
+        function showModal(modal) {
+            modal.style.display = 'block';
+        }
+
+        // Hide modal function
+        function hideModal(modal) {
+            modal.style.display = 'none';
+        }
+
+        // Add new hostel to database
+        async function addHostel(hostelData) {
+            try {
+                const formData = new FormData();
+                formData.append('hostel_name', hostelData.hostelName);
+                formData.append('hostel_location', hostelData.hostelLocation);
+                formData.append('hostel_total_rooms', hostelData.hostelTotalRooms);
+                formData.append('hostel_description', hostelData.hostelDescription);
+                
+                const response = await fetch('/admin/add_hostel', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Reload hostels to show the new hostel
+                    await loadHostels();
+                    
+                    hideModal(addHostelModal);
+                    addHostelForm.reset();
+                    
+                    alert('Hostel added successfully!');
+                } else {
+                    alert('Error adding hostel: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error adding hostel:', error);
+                alert('Error adding hostel to database');
+            }
+        }
+
+        // Add new room to database
+        async function addRoom(roomData) {
+            try {
+                const formData = new FormData();
+                formData.append('hostel_id', currentHostelId);
+                formData.append('room_number', roomData.roomNumber);
+                formData.append('room_type', roomData.roomType);
+                formData.append('room_capacity', roomData.roomCapacity);
+                formData.append('room_price', roomData.roomPrice);
+                
+                const response = await fetch('/admin/add_room', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Reload the rooms to show the new room
+                    await renderRooms(currentHostelId);
+                    // Reload hostels to update statistics
+                    await loadHostels();
+                    
+                    hideModal(addRoomModal);
+                    addRoomForm.reset();
+                    
+                    alert('Room added successfully!');
+                } else {
+                    alert('Error adding room: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error adding room:', error);
+                alert('Error adding room to database');
+            }
+        }
+
+        // Assign room to student in database
+        async function assignRoom(assignmentData) {
+            try {
+                const formData = new FormData();
+                formData.append('room_id', currentRoomForAssignment.id);
+                formData.append('student_id', assignmentData.studentId);
+                formData.append('booking_date', assignmentData.bookingDate);
+                formData.append('vaccate_date', assignmentData.vaccateDate);
+                
+                const response = await fetch('/admin/assign_room', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Reload the rooms to show updated status
+                    await renderRooms(currentHostelId);
+                    // Reload hostels to update statistics
+                    await loadHostels();
+                    
+                    hideModal(assignRoomModal);
+                    assignRoomForm.reset();
+                    setDefaultDates();
+                    
+                    alert(`Room assigned to student successfully! Booking Reference: ${result.booking_ref}`);
+                } else {
+                    alert('Error assigning room: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error assigning room:', error);
+                alert('Error assigning room to student');
+            }
+            
+            currentRoomForAssignment = null;
+        }
+
+        // Set up event listeners
+        function setupEventListeners() {
+            // Mobile menu toggle
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('active');
+            });
+
+            // View toggle buttons
+            hostelsViewBtn.addEventListener('click', showHostelsView);
+            roomsViewBtn.addEventListener('click', function() {
+                if (currentHostelId) {
+                    showRoomsView(currentHostelId);
+                } else if (hostelsData.length > 0) {
+                    showRoomsView(hostelsData[0].hostel_id);
+                }
+            });
+
+            // Back to hostels button
+            backToHostelsBtn.addEventListener('click', showHostelsView);
+
+            // Add hostel button
+            addHostelBtn.addEventListener('click', function() {
+                showModal(addHostelModal);
+            });
+
+            // Add room button
+            addRoomBtn.addEventListener('click', function() {
+                if (currentHostelId) {
+                    showModal(addRoomModal);
+                } else {
+                    alert('Please select a hostel first.');
+                }
+            });
+
+            // Hostel card clicks (delegated event handling)
+            hostelsGrid.addEventListener('click', function(e) {
+                const viewRoomsBtn = e.target.closest('.view-rooms-btn');
+                if (viewRoomsBtn) {
+                    const hostelCard = viewRoomsBtn.closest('.hostel-card');
+                    const hostelId = parseInt(hostelCard.getAttribute('data-hostel-id'));
+                    showRoomsView(hostelId);
+                }
+                
+                const editHostelBtn = e.target.closest('.edit-hostel-btn');
+                if (editHostelBtn) {
+                    const hostelCard = editHostelBtn.closest('.hostel-card');
+                    const hostelId = parseInt(hostelCard.getAttribute('data-hostel-id'));
+                    alert(`Edit hostel with ID: ${hostelId}`);
+                    // In a real application, you would open an edit modal
+                }
+            });
+
+            // Room card clicks (delegated event handling)
+            roomsGrid.addEventListener('click', function(e) {
+                const assignRoomBtn = e.target.closest('.assign-room-btn');
+                if (assignRoomBtn) {
+                    const roomId = parseInt(assignRoomBtn.getAttribute('data-room-id'));
+                    const roomNumber = assignRoomBtn.getAttribute('data-room-number');
+                    const roomType = assignRoomBtn.getAttribute('data-room-type');
+                    const roomPrice = assignRoomBtn.getAttribute('data-room-price');
+                    
+                    currentRoomForAssignment = {
+                        id: roomId,
+                        number: roomNumber,
+                        type: roomType,
+                        price: roomPrice
+                    };
+                    
+                    assignRoomNumber.value = roomNumber;
+                    assignRoomInfo.textContent = `${roomType} Room - $${roomPrice}/semester`;
+                    showModal(assignRoomModal);
+                }
+                
+                const roomDetailsBtn = e.target.closest('.room-details-btn');
+                if (roomDetailsBtn) {
+                    alert('Room details would show here');
+                    // Will be updated to show room details
+                }
+            });
+
+            // Breadcrumb navigation
+            breadcrumb.addEventListener('click', function(e) {
+                if (e.target.classList.contains('breadcrumb-hostels')) {
+                    e.preventDefault();
+                    showHostelsView();
+                }
+            });
+
+            // Modal close buttons
+            document.querySelectorAll('.close-modal').forEach(button => {
+                button.addEventListener('click', function() {
+                    hideModal(addHostelModal);
+                    hideModal(addRoomModal);
+                    hideModal(assignRoomModal);
+                });
+            });
+
+            // Close modal when clicking outside
+            window.addEventListener('click', function(e) {
+                if (e.target === addHostelModal) {
+                    hideModal(addHostelModal);
+                }
+                if (e.target === addRoomModal) {
+                    hideModal(addRoomModal);
+                }
+                if (e.target === assignRoomModal) {
+                    hideModal(assignRoomModal);
+                }
+            });
+
+            // Form submissions
+            addHostelForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = {
+                    hostelName: document.getElementById('hostelName').value,
+                    hostelLocation: document.getElementById('hostelLocation').value,
+                    hostelTotalRooms: document.getElementById('hostelTotalRooms').value,
+                    hostelDescription: document.getElementById('hostelDescription').value
+                };
+                addHostel(formData);
+            });
+
+            addRoomForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = {
+                    roomNumber: document.getElementById('roomNumber').value,
+                    roomType: document.getElementById('roomType').value,
+                    roomCapacity: document.getElementById('roomCapacity').value,
+                    roomPrice: document.getElementById('roomPrice').value
+                };
+                addRoom(formData);
+            });
+
+            assignRoomForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = {
+                    studentId: document.getElementById('studentSelect').value,
+                    bookingDate: document.getElementById('bookingDate').value,
+                    vaccateDate: document.getElementById('vaccateDate').value
+                };
+                assignRoom(formData);
+            });
+
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth <= 1024 && 
+                    !sidebar.contains(event.target) && 
+                    !mobileMenuToggle.contains(event.target) &&
+                    sidebar.classList.contains('active')) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            init();
+        });
+    </script>
+{% endblock %}
