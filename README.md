@@ -20,7 +20,7 @@ Nyumbani Hostels is a Python-based hostel management system designed to simplify
 ## Setup
 
 1. Clone the repository:
-git clone https://github.com/USERNAME/nyumbani-hostels.git
+git clone https://github.com/Felloh-254/NyumbaniHostels.git
 cd nyumbani-hostels
 
 2. Create a virtual environment and activate it:
